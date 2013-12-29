@@ -1,0 +1,106 @@
+8
+
+dir
+109
+https://jsspec.googlecode.com/svn/trunk
+https://jsspec.googlecode.com/svn
+
+
+
+2008-05-21T03:31:29.851382Z
+109
+jania902
+has-props
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+92187c49-0d35-0410-b305-2f54cc65526e
+
+sample
+dir
+
+JSSpec.js
+file
+110
+
+
+
+2008-09-23T09:55:19.489935Z
+1585366cda07cfcbe5eec7a2743a2984
+2008-09-23T09:55:46.682730Z
+110
+jania902
+
+.project
+file
+
+
+
+
+2008-09-23T09:53:03.751461Z
+d99fd8151b1db5e04ac21b0861f6c09b
+2007-07-12T09:10:15.574825Z
+4
+jania902
+
+demo.html
+file
+
+
+
+
+2008-09-23T09:53:03.767047Z
+81e86651c547118d0460674229767a6a
+2008-04-07T06:57:18.555034Z
+107
+jania902
+
+COPYING
+file
+
+
+
+
+2008-09-23T09:53:03.767047Z
+9c1387a3c5213aa40671438af3e00793
+2007-07-16T10:29:11.062072Z
+32
+jania902
+
+exp
+dir
+
+JSSpec.css
+file
+
+
+
+
+2008-09-23T09:53:03.782633Z
+f08dd809da7151d7d917d5365a733913
+2008-03-17T04:45:29.371050Z
+105
+jania902
+
+diff_match_patch.js
+file
+
+
+
+
+2008-09-23T09:53:03.798219Z
+0e8b249afc85241edad7bdaaddb3dd69
+2007-10-10T09:41:53.450006Z
+81
+jania902
+
