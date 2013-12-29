@@ -18,6 +18,47 @@
 //      - end of slur/group (from bar/repeat)
 //      - meta [ K|M|G|L|Q|T|X ]
 
+// See MIDI.js/inc/jasmid/midifile.js
+var midifile =
+	{
+		'header': {
+            'formatType': 1,
+            'trackCount': 2,
+            'ticksPerBeat': 64 // per crotchet
+        },
+		'tracks': [
+            [
+                {
+                    'deltaTime': 0,
+                    'type': 'channel',
+                    'subtype': 'noteOn',
+                    'noteNumber': 40,
+                    'velocity': 0
+                },
+                {
+                    'deltaTime': 64,
+                    'type': 'channel',
+                    'subtype': 'noteOff',
+                    'noteNumber': 40,
+                    'velocity': 127
+                } // , ...
+            ],
+            [] // , ...
+        ]
+	};
+
+// Aim: something equivalent to ABC, but better for editing.
+var vurm = {
+        'header' : {
+            'key' : 0, // -6..+6 FCGDAEB ; (?) informative only
+        },
+        'stream' : [
+            {
+                'note': 60, // Middle C; (?) all sharps and flats are explicit despite key signature.
+            } // , ...
+        ]
+    };
+
 function note(abc) {
     var r = /^((z)|([_=^]*)(([a-g])('*)|([A-G])(,*)))/.exec(abc);
     if (!r) {
