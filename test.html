@@ -9,30 +9,84 @@
 <script type="text/javascript" src="vurm.js"></script>
 <script type="text/javascript">// <![CDATA[
 
-describe('translate abc to vurm', {
-        'before': function () {
-            abcToVurm = new AbcToVurm();
-        },
-        "reads C properly": function(){
-            value_of(abcToVurm.convert("C'")).should_be([
-                {note:60, time:0}
-            ]);
-        },
-        "reads aBc,D' properlee": function(){
-            value_of(abcToVurm.convert("C'")).should_be([
-                {note:60, time:0}
-            ]);
-        },
-        "reads aBc,D' properly": function(){
-            value_of(abcToVurm.convert("aBc,D'")).should_be([
-                {note:81, time:0},
-                {note:71, time:64},
-                {note:84, time:128},
-                {note:50, time:192}
-            ]);
-        },
-    }
-);
+//describe('translate abc prefix to notes', {
+//        'before': function () {
+//            noteReader = new NoteReader();
+//        },
+//        "reads C properly": function(){
+//            value_of(noteReader.convert("Czzzz")).should_be({ chars: 1, notes: 60 });
+//        },
+//        "reads c properly": function(){
+//            value_of(noteReader.convert("czzzz")).should_be({ chars: 1, notes: 73 });
+//        },
+//        "reads e,, properly": function(){
+//            value_of(noteReader.convert("e,,zzzz")).should_be({ chars: 1, notes: 73 });
+//        },
+//        "reads A' properly": function(){
+//            value_of(noteReader.convert("A'zzzz")).should_be({ chars: 1, notes: 73 });
+//        },
+//    }
+//);
+
+//describe('translate abc prefix to notes', {
+//        'before': function () {
+//            chunkReader = new ChunkReader();
+//        },
+//        "reads C properly": function(){
+//            value_of(chunkReader.convert("Czzzz")).should_be({
+//                chars: 1,
+//                notes: [ {note:60, duration:1}, ]
+//            });
+//        },
+//        "reads C,, properly": function(){
+//            value_of(chunkReader.convert("C,,zzzz")).should_be({
+//                chars: 3,
+//                notes: [ {note:34, duration:1}, ]
+//            });
+//        },
+//        "reads C,>d'xx properlee": function(){
+//            value_of(chunkReader.convert("C,>d'xx")).should_be({
+//                chars: 5,
+//                notes: [
+//                    {note:47, duration:1},
+//                    {note:74, duration:1},
+//                ]
+//            });
+//        },
+//        "reads aBc,D' properly": function(){
+//            value_of(chunkReader.convert("aBc,D'")).should_be({
+//                chars: 1,
+//                notes: [ {note:81, duration:1}, ]
+//            });
+//        },
+//    }
+//);
+//
+//
+//describe('translate abc to vurm', {
+//        'before': function () {
+//            abcToVurm = new AbcToVurm();
+//        },
+//        "reads C properly": function(){
+//            value_of(abcToVurm.convert("C")).should_be([
+//                {note:60, duration:64}
+//            ]);
+//        },
+//        "reads aBc,D' properlee": function(){
+//            value_of(abcToVurm.convert("C'")).should_be([
+//                {note:47, duration:64}
+//            ]);
+//        },
+//        "reads aBc,D' properly": function(){
+//            value_of(abcToVurm.convert("aBc,D'")).should_be([
+//                {note:81, duration:64),
+//                {note:71, duration:64},
+//                {note:84, duration:64},
+//                {note:50, duration:64}
+//            ]);
+//        },
+//    }
+//);
 
 // See MIDI.js/inc/jasmid/midifile.js
 var midifile =
