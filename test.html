@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ko">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+<title>JSSpec results</title>
+<link rel="stylesheet" type="text/css" href="jsscript/JSSpec.css" />
+<script type="text/javascript" src="jsscript/diff_match_patch.js"></script>
+<script type="text/javascript" src="jsscript/JSSpec.js"></script>
+<script type="text/javascript" src="vurm.js"></script>
+<script type="text/javascript">// <![CDATA[
+
+describe('translate abc to vurm', {
+        'before': function () {
+            abcToVurm = new AbcToVurm();
+        },
+        "reads C properly": function(){
+            value_of(abcToVurm.convert("C'")).should_be([
+                {note:60, time:0}
+            ]);
+        },
+        "reads aBc,D' properlee": function(){
+            value_of(abcToVurm.convert("C'")).should_be([
+                {note:60, time:0}
+            ]);
+        },
+        "reads aBc,D' properly": function(){
+            value_of(abcToVurm.convert("aBc,D'")).should_be([
+                {note:81, time:0},
+                {note:71, time:64},
+                {note:84, time:128},
+                {note:50, time:192}
+            ]);
+        },
+    }
+);
+
+// See MIDI.js/inc/jasmid/midifile.js
+var midifile =
+	{
+		'header': {
+            'formatType': 1,
+            'trackCount': 2,
+            'ticksPerBeat': 64 // per crotchet
+        },
+		'tracks': [
+            [
+                {
+                    'deltaTime': 0,
+                    'type': 'channel',
+                    'subtype': 'noteOn',
+                    'noteNumber': 40,
+                    'velocity': 0
+                },
+                {
+                    'deltaTime': 64,
+                    'type': 'channel',
+                    'subtype': 'noteOff',
+                    'noteNumber': 40,
+                    'velocity': 127
+                } // , ...
+            ],
+            [] // , ...
+        ]
+	};
+
+// Aim: something equivalent to ABC, but better for editing.
+var vurm = {
+        'header' : {
+            'key' : 0, // -6..+6 FCGDAEB ; (?) informative only
+        },
+        'stream' : [
+            {
+                'note': 60, // Middle C; (?) all sharps and flats are explicit despite key signature.
+            } // , ...
+        ]
+    };
+
+// ]]></script>
+</head>
+<body><div style="display:none;"><p>A</p><p>B</p></div></body>
+</html>
