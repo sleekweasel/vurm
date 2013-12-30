@@ -81,26 +81,26 @@ describe('translate abc to vurm', {
         },
         "reads C properly": function(){
             value_of(abcToVurm.convert("C")).should_be([
-                {note:60, duration:64}
+                {note:60, duration:1}
             ]);
         },
         "reads C, properly": function(){
             value_of(abcToVurm.convert("C,")).should_be([
-                {note:60-12, duration:64}
+                {note:60-12, duration:1}
             ]);
         },
         "reports parse error": function(){
             value_of(abcToVurm.convert("C'")).should_be([
-                {note:60, duration:64},
+                {note:60, duration:1},
                 {parseFailAt:"'"}
             ]);
         },
         "reads aBc,D' properly": function(){
             value_of(abcToVurm.convert("aBc'D,")).should_be([
-                {note:81, duration:64},
-                {note:71, duration:64},
-                {note:84, duration:64},
-                {note:50, duration:64}
+                {note:81, duration:1},
+                {note:71, duration:1},
+                {note:84, duration:1},
+                {note:50, duration:1}
             ]);
         },
     }

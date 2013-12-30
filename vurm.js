@@ -110,7 +110,6 @@ ChunkReader = function() {
                     dn = 1 / dn;
                 }
                 //time += period * dn;
-//document.getElementById('abc').innerHTML += "=" + p.note + "-" + time + " ";
         chunk.notes.push({ note: p.note, duration: dn });
             }
         return chunk;
@@ -129,7 +128,7 @@ AbcToVurm = function() {
                 abc = abc.slice(p.chars);
                 for (var i = 0; i < p.notes.length; ++i ) {
                     var n = p.notes[i];
-                    chunks.push({note: n.note, duration: 64*n.duration});
+                    chunks.push({note: n.note, duration: n.duration});
                 }
             }
             if (old == abc) {
@@ -155,7 +154,8 @@ function onceLoaded() {
             for (var i = 0; i < p.notes.length; ++i ) {
                 var n = p.notes[i];
                 MIDI.noteOn(0, n.note, 127, time);
-                time += n.duration;
+                time += 1 * n.duration;
+document.getElementById('abc').innerHTML += "=" + n.note + "-" + time + " ";
             }
         }
         if (old == abc) {
