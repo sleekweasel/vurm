@@ -21,10 +21,10 @@
 
 NoteReader = function() {
     this.convert = function(abc) {
-    var r = /^((z)|([_=^]*)(([a-g])('*)|([A-G])(,*)))/.exec(abc);
-    if (!r) {
-        return null;
-    }
+        var r = /^((z)|([_=^]*)(([a-g])('*)|([A-G])(,*)))/.exec(abc);
+        if (!r) {
+            return null;
+        }
 
         var note;
         if (!r[2]) {
@@ -71,47 +71,35 @@ durationReader = new DurationReader();
 
 ChunkReader = function() {
     this.convert = function(abc) {
-        var chunk = { chars: 0, notes: [] };
-            var p = noteReader.convert(abc);
-            if (!p) {
+        var p = noteReader.convert(abc);
+        if (!p) {
+            return null;
+        }
+        var chunk = { chars: p.chars, notes: [] };
+        abc = abc.slice(p.chars);
+        var d = durationReader.convert(abc);
+        if (!d) {
+            return null;
+        }
+        abc = abc.slice(d.chars);
+        chunk.chars += d.chars;
+        if (d.dots) {
+            var p2 = noteReader.convert(abc);
+            if (!p2) {
                 return null;
             }
-        chunk.chars += p.chars;
-            abc = abc.slice(p.chars);
-            var d = durationReader.convert(abc);
-            abc = abc.slice(d.chars);
-        chunk.chars += d.chars;
-            if (d.dots) {
-                var p2 = noteReader.convert(abc);
-                abc = abc.slice(p2.chars);
-        chunk.chars += p2.chars;
+            abc = abc.slice(p2.chars);
+            chunk.chars += p2.chars;
 
-                var dd = Math.pow(0.5, d.dots.length);
-                
-                var d1 = d.dots.match('>') ? 2-dd : dd;
-                var d2 = d.dots.match('<') ? 2-dd : dd;
+            var dd = Math.pow(0.5, d.dots.length);
+            var d1 = d.dots.match('>') ? 2-dd : dd;
+            var d2 = d.dots.match('<') ? 2-dd : dd;
 
-                //MIDI.noteOn(0, p.note, 127, time);
-
-                //time += period * d1;
-                
-//document.getElementById('abc').innerHTML += "=" + p.note + "-" + time + " ";
-        chunk.notes.push({ note: p.note, duration: d1 });
-
-                //MIDI.noteOn(0, p2.note, 127, time);
-
-                //time += period * d2;
-//document.getElementById('abc').innerHTML += "=" + p2.note + "-" + time + " ";
-        chunk.notes.push({ note: p2.note, duration: d2 });
-            } else {
-                //MIDI.noteOn(0, p.note, 127, time);
-                var dn = d.num;
-                if (d.reciprocal) {
-                    dn = 1 / dn;
-                }
-                //time += period * dn;
-        chunk.notes.push({ note: p.note, duration: dn });
-            }
+            chunk.notes.push({ note: p.note, duration: d1 });
+            chunk.notes.push({ note: p2.note, duration: d2 });
+        } else {
+            chunk.notes.push({ note: p.note, duration: d.reciprocal ? 1 / d.num : d.num });
+        }
         return chunk;
     }
 }
@@ -143,11 +131,11 @@ AbcToVurm = function() {
 function onceLoaded() {
     MIDI.programChange(0, 0);
     var abc=window.location.hash.slice(1);
-    var old = abc;
     var time = 0;
     var period = 1;
     var noteReader = new ChunkReader();
     while (abc.length > 0) {
+        var old = abc;
         var p = noteReader.convert(abc);
         if (p) {
             abc = abc.slice(p.chars);
@@ -155,11 +143,11 @@ function onceLoaded() {
                 var n = p.notes[i];
                 MIDI.noteOn(0, n.note, 127, time);
                 time += 1 * n.duration;
-document.getElementById('abc').innerHTML += "=" + n.note + "-" + time + " ";
+                document.getElementById('abc').innerHTML += "=" + n.note + "-" + time + " ";
             }
         }
         if (old == abc) {
-document.getElementById('abc').innerHTML += " Stopped at " + abc;
+            document.getElementById('abc').innerHTML += " Stopped at " + abc;
             break;
         }
         old = abc;
