@@ -14,15 +14,19 @@ describe('translate abc prefix to notes', {
             noteReader = new NoteReader();
         },
         "reads C properly": function(){
-            value_of(noteReader.convert("Czzzz")).should_be({ chars: 1, notes: 60 });
+            value_of(noteReader.convert("Czzzz")).should_be({ chars: 1, note: 60 });
         },
         "reads c properly": function(){
-            value_of(noteReader.convert("czzzz")).should_be({ chars: 1, notes: 73 });
+            value_of(noteReader.convert("czzzz")).should_be({ chars: 1, note: 60 + 12 });
         },
         "reads e,, properly": function(){
-            value_of(noteReader.convert("e,,zzzz")).should_be({ chars: 1, notes: 73 });
+            value_of(noteReader.convert("E,,zzzz")).should_be({ chars: 3, note: 60 + 4 - 12 - 12 });
         },
-        "reads A' properly": function(){ value_of(noteReader.convert("A'zzzz")).should_be({ chars: 1, notes: 73 });
+        "reads A' properly": function(){
+            value_of(noteReader.convert("A'zzzz")).should_be({ chars: 1, note: 60 + 9 });
+        },
+        "ignores ' properly": function(){
+            value_of(noteReader.convert("'zzzz")).should_be(null);
         },
     }
 );
