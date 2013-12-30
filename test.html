@@ -80,9 +80,15 @@ describe('translate abc to vurm', {
                 {note:60, duration:64}
             ]);
         },
-        "reads c' properlee": function(){
+        "reads C, properly": function(){
             value_of(abcToVurm.convert("C,")).should_be([
                 {note:60-12, duration:64}
+            ]);
+        },
+        "reports parse error": function(){
+            value_of(abcToVurm.convert("C'")).should_be([
+                {note:60, duration:64},
+                {parseFailAt:"'"}
             ]);
         },
         "reads aBc,D' properly": function(){
