@@ -11,7 +11,7 @@
 
 describe('translate abc prefix to notes', {
         'before': function () {
-            noteReader = new NoteReader();
+            noteReader = new AbcNoteReader();
         },
         "reads C properly": function(){
             value_of(noteReader.convert("Czzzz")).should_be({ chars: 1, note: 60 });
@@ -33,7 +33,7 @@ describe('translate abc prefix to notes', {
 
 describe('translate abc prefix to chunks', {
         'before': function () {
-            chunkReader = new ChunkReader();
+            chunkReader = new AbcChunkReader();
         },
         "reads C properly": function(){
             value_of(chunkReader.convert("Czzzz")).should_be({
@@ -77,31 +77,35 @@ describe('translate abc prefix to chunks', {
 
 describe('translate abc to vurm', {
         'before': function () {
-            abcToVurm = new AbcToVurm();
+            abcToVurm = new AbcReader();
         },
         "reads C properly": function(){
-            value_of(abcToVurm.convert("C")).should_be([
-                {note:60, duration:1}
-            ]);
+            value_of(abcToVurm.convert("C")).should_be({
+                stream : [ {note:60, duration:1} ]
+            });
         },
         "reads C, properly": function(){
-            value_of(abcToVurm.convert("C,")).should_be([
-                {note:60-12, duration:1}
-            ]);
+            value_of(abcToVurm.convert("C,")).should_be({
+                stream : [ {note:60-12, duration:1} ]
+            });
         },
         "reports parse error": function(){
-            value_of(abcToVurm.convert("C'")).should_be([
-                {note:60, duration:1},
-                {parseFailAt:"'"}
-            ]);
+            value_of(abcToVurm.convert("C'")).should_be({
+                stream : [
+                    {note:60, duration:1},
+                    {parseFailAt:"'"}
+                ]
+            });
         },
         "reads aBc,D' properly": function(){
-            value_of(abcToVurm.convert("aBc'D,")).should_be([
-                {note:81, duration:1},
-                {note:71, duration:1},
-                {note:84, duration:1},
-                {note:50, duration:1}
-            ]);
+            value_of(abcToVurm.convert("aBc'D,")).should_be({
+                stream : [
+                    {note:81, duration:1},
+                    {note:71, duration:1},
+                    {note:84, duration:1},
+                    {note:50, duration:1}
+                ]
+            });
         },
     }
 );
@@ -135,14 +139,16 @@ var midifile =
         ]
 	};
 
+
 // Aim: something equivalent to ABC, but better for editing.
 var vurm = {
-        'header' : {
-            'key' : 0, // -6..+6 FCGDAEB ; (?) informative only
+        header : {
+            key : 0, // -6..+6 FCGDAEB ; (?) informative only
         },
-        'stream' : [
+        stream : [
             {
-                'note': 60, // Middle C; (?) all sharps and flats are explicit despite key signature.
+                note: 60, // Middle C; (?) all sharps and flats are explicit despite key signature.
+                duration: 1, // 1 is a crotchet. Consider 96 as a crotchet for easy triples, or fractions.
             } // , ...
         ]
     };

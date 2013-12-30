@@ -19,7 +19,7 @@
 //      - meta [ K|M|G|L|Q|T|X ]
 
 
-NoteReader = function() {
+AbcNoteReader = function() {
     this.convert = function(abc) {
         var r = /^((z)|([_=^]*)(([a-g])('*)|([A-G])(,*)))/.exec(abc);
         if (!r) {
@@ -45,9 +45,9 @@ NoteReader = function() {
     }
 }
 
-noteReader = new NoteReader();
+abcNoteReader = new AbcNoteReader();
 
-DurationReader = function() {
+AbcDurationReader = function() {
     this.convert = function(abc) {
         var d = /^((<+|>+|)|(\/?)([0-9]*))/.exec(abc);
         if (!d) {
@@ -67,24 +67,24 @@ DurationReader = function() {
     }
 }
 
-durationReader = new DurationReader();
+abcDurationReader = new AbcDurationReader();
 
-ChunkReader = function() {
+AbcChunkReader = function() {
     this.convert = function(abc) {
-        var p = noteReader.convert(abc);
+        var p = abcNoteReader.convert(abc);
         if (!p) {
             return null;
         }
         var chunk = { chars: p.chars, notes: [] };
         abc = abc.slice(p.chars);
-        var d = durationReader.convert(abc);
+        var d = abcDurationReader.convert(abc);
         if (!d) {
             return null;
         }
         abc = abc.slice(d.chars);
         chunk.chars += d.chars;
         if (d.dots) {
-            var p2 = noteReader.convert(abc);
+            var p2 = abcNoteReader.convert(abc);
             if (!p2) {
                 return null;
             }
@@ -104,13 +104,13 @@ ChunkReader = function() {
     }
 }
 
+abcChunkReader = new AbcChunkReader();
 
-AbcToVurm = function() {
+AbcReader = function() {
     this.convert = function(abc) {
         var chunks = []
-        var noteReader = new ChunkReader();
         while (abc.length > 0) {
-            var p = noteReader.convert(abc);
+            var p = abcChunkReader.convert(abc);
             var old = abc;
             if (p) {
                 abc = abc.slice(p.chars);
@@ -124,33 +124,26 @@ AbcToVurm = function() {
                 abc = '';
             }
         }
-        return chunks;
+        return { stream: chunks };
     }
 }
 
+abcReader = new AbcReader();
+
 function onceLoaded() {
     MIDI.programChange(0, 0);
-    var abc=window.location.hash.slice(1);
+    var abc = window.location.hash.slice(1);
+    var vurm = abcReader.convert(abc);
+
     var time = 0;
     var period = 1;
-    var noteReader = new ChunkReader();
-    while (abc.length > 0) {
-        var old = abc;
-        var p = noteReader.convert(abc);
-        if (p) {
-            abc = abc.slice(p.chars);
-            for (var i = 0; i < p.notes.length; ++i ) {
-                var n = p.notes[i];
-                MIDI.noteOn(0, n.note, 127, time);
-                time += 1 * n.duration;
-                document.getElementById('abc').innerHTML += "=" + n.note + "-" + time + " ";
-            }
+    for (var i = 0; i < vurm.stream.length; ++i) {
+        var n = vurm.stream[i];
+        if (n.note) {
+            MIDI.noteOn(0, n.note, 127, time);
+            time += 1 * n.duration;
+            document.getElementById('abc').innerHTML += "=" + n.note + "-" + time + " ";
         }
-        if (old == abc) {
-            document.getElementById('abc').innerHTML += " Stopped at " + abc;
-            break;
-        }
-        old = abc;
     }
 }
 
