@@ -1004,7 +1004,7 @@ JSSpec.ObjectEqualityMatcher.prototype.makeExplainForItemMismatch = function(key
 
 	sb.push('<p>actual value has an item named <strong>' + JSSpec.util.inspect(key) + '</strong> whose value is <strong>' + JSSpec.util.inspect(this.actual[key]) + '</strong></p>');
 	sb.push('<p style="margin-left:2em;">' + JSSpec.util.inspect(this.actual, false, key) + '</p>');
-	sb.push('<p>but it\'s value should be <strong>' + JSSpec.util.inspect(this.expected[key]) + '</strong></p>');
+	sb.push('<p>but its value should be <strong>' + JSSpec.util.inspect(this.expected[key]) + '</strong></p>');
 	sb.push('<p style="margin-left:2em;">' + JSSpec.util.inspect(this.expected, false, key) + '</p>');
 	
 	return sb.join("");
