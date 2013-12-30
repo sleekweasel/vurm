@@ -75,6 +75,19 @@ describe('translate abc prefix to chunks', {
 );
 
 
+// Aim: something equivalent to ABC, but better for editing.
+var vurm = {
+        header : {
+            key : 0, // -6..+6 FCGDAEB ; (?) informative only
+        },
+        stream : [
+            {
+                note: 60, // Middle C; (?) all sharps and flats are explicit despite key signature.
+                duration: 1, // 1 is a crotchet. Consider 96 as a crotchet for easy triples, or fractions.
+            } // , ...
+        ]
+    };
+
 describe('translate abc to vurm', {
         'before': function () {
             abcToVurm = new AbcReader();
@@ -140,18 +153,68 @@ var midifile =
 	};
 
 
-// Aim: something equivalent to ABC, but better for editing.
-var vurm = {
-        header : {
-            key : 0, // -6..+6 FCGDAEB ; (?) informative only
+describe('translate vurm to midi', {
+        'before': function () {
+            vurmToMidi = new VurmToMidi();
         },
-        stream : [
-            {
-                note: 60, // Middle C; (?) all sharps and flats are explicit despite key signature.
-                duration: 1, // 1 is a crotchet. Consider 96 as a crotchet for easy triples, or fractions.
-            } // , ...
-        ]
-    };
+        "One note stream": function(){
+            value_of(vurmToMidi.convert({
+                stream : [ {note:60, duration:1} ]
+            })).should_be({
+                header: {
+                    formatType: 1,
+                    trackCount: 2,
+                    ticksPerBeat: 64 // per crotchet, ie 64*vurm.duration
+                },
+                tracks: [
+                    [
+                        // Meta: title, key, etc.
+                    ],
+                    [
+                        { deltaTime: 0,  type: channel, subtype: noteOn,  noteNumber: 60, velocity: 127 },
+                        { deltaTime: 64, type: channel, subtype: noteOff, noteNumber: 60, velocity: 0 },
+                    ],
+                ]
+            });
+        },
+        "plain no-repeat note stream": function(){
+            value_of(vurmToMidi.convert({
+                stream : [ {note:60, duration:1} ],
+                stream : [ {note:62, duration:1} ],
+                stream : [ {note:64, duration:1} ],
+                stream : [ {note:65, duration:1} ],
+                stream : [ {note:67, duration:1} ],
+                stream : [ {note:69, duration:1} ],
+            })).should_be({
+                header: {
+                    formatType: 1,
+                    trackCount: 2,
+                    ticksPerBeat: 64 // per crotchet, ie 64*vurm.duration
+                },
+                tracks: [
+                    [
+                        // Meta: title, key, etc.
+                    ],
+                    [
+                        { deltaTime: 64*0, type: channel, subtype: noteOn,  noteNumber: 60, velocity: 127 },
+                        { deltaTime: 64*1, type: channel, subtype: noteOff, noteNumber: 60, velocity: 0 },
+                        { deltaTime: 64*1, type: channel, subtype: noteOn,  noteNumber: 62, velocity: 127 },
+                        { deltaTime: 64*2, type: channel, subtype: noteOff, noteNumber: 62, velocity: 0 },
+                        { deltaTime: 64*2, type: channel, subtype: noteOn,  noteNumber: 64, velocity: 127 },
+                        { deltaTime: 64*3, type: channel, subtype: noteOff, noteNumber: 64, velocity: 0 },
+                        { deltaTime: 64*3, type: channel, subtype: noteOn,  noteNumber: 65, velocity: 127 },
+                        { deltaTime: 64*4, type: channel, subtype: noteOff, noteNumber: 65, velocity: 0 },
+                        { deltaTime: 64*4, type: channel, subtype: noteOn,  noteNumber: 67, velocity: 127 },
+                        { deltaTime: 64*5, type: channel, subtype: noteOff, noteNumber: 67, velocity: 0 },
+                        { deltaTime: 64*6, type: channel, subtype: noteOn,  noteNumber: 69, velocity: 127 },
+                        { deltaTime: 64*6, type: channel, subtype: noteOff, noteNumber: 69, velocity: 0 },
+                    ],
+                ]
+            });
+        },
+    }
+);
+
 
 // ]]></script>
 </head>
