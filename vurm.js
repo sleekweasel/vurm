@@ -56,10 +56,6 @@ function duration(abc) {
     return d;
 }
 
-AbcToVurm = function() {
-    this.convert = function() { return {} }
-}
-
 NoteReader = function() {
     this.convert = function() {
         return {}
@@ -70,6 +66,9 @@ ChunkReader = function() {
     this.convert = function(abc) {
         chunk = { chars: 0, notes: [] };
             var p = note(abc);
+            if (!p) {
+                return null;
+            }
         chunk.chars += p[0].length;
             abc = abc.slice(p[0].length);
             var dur = duration(abc);
@@ -111,6 +110,30 @@ ChunkReader = function() {
     }
 }
 
+
+AbcToVurm = function() {
+    this.convert = function(abc) {
+        var chunks = []
+        var noteReader = new ChunkReader();
+        while (abc.length > 0) {
+            var p = noteReader.convert(abc);
+            var old = abc;
+            if (p) {
+                abc = abc.slice(p.chars);
+                for (var i = 0; i < p.notes.length; ++i ) {
+                    var n = p.notes[i];
+                    chunks.push({note: n.note, duration: 64*n.duration});
+                }
+            }
+            if (old == abc) {
+                chunks.push({parseFailAt: abc});
+                abc = '';
+            }
+        }
+        return chunks;
+    }
+}
+
 function onceLoaded() {
     MIDI.programChange(0, 0);
     var abc=window.location.hash.slice(1);
@@ -132,6 +155,7 @@ function onceLoaded() {
 document.getElementById('abc').innerHTML += " Stopped at " + abc;
             break;
         }
+        old = abc;
     }
 }
 
