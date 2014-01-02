@@ -49,12 +49,12 @@ abcNoteReader = new AbcNoteReader();
 
 AbcDurationReader = function() {
     this.convert = function(abc) {
-        var d = /^(<+|>+)|([0-9]*)(\/([0-9]*))?/.exec(abc);
+        var d = /^((<+|>+)|([0-9]*)(\/([0-9]*))?)/.exec(abc);
         if (!d) {
             return null;
         }
 
-        var chunk = { chars: d[0].length, dots: d[1], numer: d[2], denom: d[4] };
+        var chunk = { chars: d[1].length, dots: d[2], numer: d[3], denom: d[5] };
 
         if (!chunk.dots) {
             if (chunk.denom == undefined) { chunk.denom = 1; }
@@ -68,11 +68,26 @@ AbcDurationReader = function() {
 
 abcDurationReader = new AbcDurationReader();
 
+AbcPunctuationReader = function() {
+    this.convert = function(abc) {
+        var d = /^((\()|(\))|(\|)|( +))/.exec(abc);
+        if (!d) {
+            return null;
+        }
+
+        var chunk = { chars: d[1].length, tieStart: d[2], tieEnd: d[3], bar: d[4], space: d[5] };
+
+        return chunk;
+    }
+}
+
+abcPunctuationReader = new AbcPunctuationReader();
+
 AbcChunkReader = function() {
     this.convert = function(abc) {
         var p = abcNoteReader.convert(abc);
         if (!p) {
-            return null;
+            return abcPunctuationReader.convert(abc);
         }
         var chunk = { chars: p.chars, notes: [] };
         abc = abc.slice(p.chars);
@@ -97,7 +112,7 @@ AbcChunkReader = function() {
             chunk.notes.push({ note: p.note, duration: d1 });
             chunk.notes.push({ note: p2.note, duration: d2 });
         } else {
-            chunk.notes.push({ note: p.note, duration: d.numer / d.denom });
+            chunk.notes.push({ note: p.note, duration: (1*d.numer) / (1*d.denom) });
         }
         return chunk;
     }
@@ -113,9 +128,13 @@ AbcReader = function() {
             var old = abc;
             if (p) {
                 abc = abc.slice(p.chars);
-                for (var i = 0; i < p.notes.length; ++i ) {
-                    var n = p.notes[i];
-                    chunks.push({note: n.note, duration: n.duration});
+                if (p.notes) {
+                    for (var i = 0; i < p.notes.length; ++i ) {
+                        var n = p.notes[i];
+                        chunks.push({note: n.note, duration: n.duration});
+                    }
+                } else {
+                    chunks.push(p);
                 }
             }
             if (old == abc) {

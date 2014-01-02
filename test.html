@@ -11,72 +11,96 @@
 
 describe('translate abc prefix to notes', {
         'before': function () {
-            noteReader = new AbcNoteReader();
+            reader = new AbcNoteReader();
         },
         "reads C properly": function(){
-            value_of(noteReader.convert("Czzzz")).should_be({ chars: 1, note: 60 });
+            value_of(reader.convert("Czzzz")).should_be({ chars: 1, note: 60 });
         },
         "reads c properly": function(){
-            value_of(noteReader.convert("czzzz")).should_be({ chars: 1, note: 60 + 12 });
+            value_of(reader.convert("czzzz")).should_be({ chars: 1, note: 60 + 12 });
         },
         "reads e,, properly": function(){
-            value_of(noteReader.convert("E,,zzzz")).should_be({ chars: 3, note: 60 + 4 - 12 - 12 });
+            value_of(reader.convert("E,,zzzz")).should_be({ chars: 3, note: 60 + 4 - 12 - 12 });
         },
         "reads A' properly": function(){
-            value_of(noteReader.convert("A'zzzz")).should_be({ chars: 1, note: 60 + 9 });
+            value_of(reader.convert("A'zzzz")).should_be({ chars: 1, note: 60 + 9 });
         },
         "ignores ' properly": function(){
-            value_of(noteReader.convert("'zzzz")).should_be(null);
+            value_of(reader.convert("'zzzz")).should_be(null);
         },
     }
 );
 
 describe('translate abc prefix to durations', {
         'before': function () {
-            durationReader = new AbcDurationReader();
+            reader = new AbcDurationReader();
         },
         "defaults empty properly": function(){
-            value_of(durationReader.convert("Czzzz")).should_be({ chars: 0, dots: undefined, numer: 1, denom: 1 });
+            value_of(reader.convert("Czzzz")).should_be({ chars: 0, dots: undefined, numer: 1, denom: 1 });
         },
         "reads postdots properly": function(){
-            value_of(durationReader.convert("<<<>Czzzz")).should_be({ chars: 3, dots: '<<<', numer: undefined, denom: undefined });
+            value_of(reader.convert("<<<>Czzzz")).should_be({ chars: 3, dots: '<<<', numer: undefined, denom: undefined });
         },
         "reads predots properly": function(){
-            value_of(durationReader.convert(">><Czzzz")).should_be({ chars: 2, dots: '>>', numer: undefined, denom: undefined });
+            value_of(reader.convert(">><Czzzz")).should_be({ chars: 2, dots: '>>', numer: undefined, denom: undefined });
         },
         "reads plain 3 properly": function(){
-            value_of(durationReader.convert("3zzzz")).should_be({ chars: 1, dots: undefined, numer: 3, denom: 1 });
+            value_of(reader.convert("3zzzz")).should_be({ chars: 1, dots: undefined, numer: 3, denom: 1 });
         },
         "defaults / properly": function(){
-            value_of(durationReader.convert("/zzzz")).should_be({ chars: 1, dots: undefined, numer: 1, denom: 2 });
+            value_of(reader.convert("/zzzz")).should_be({ chars: 1, dots: undefined, numer: 1, denom: 2 });
         },
         "reads 3/ properly": function(){
-            value_of(durationReader.convert("3/zzzz")).should_be({ chars: 2, dots: undefined, numer: 3, denom: 2 });
+            value_of(reader.convert("3/zzzz")).should_be({ chars: 2, dots: undefined, numer: 3, denom: 2 });
         },
         "reads 3/4 properly": function(){
-            value_of(durationReader.convert("3/4zzzz")).should_be({ chars: 3, dots: undefined, numer: 3, denom: 4 });
+            value_of(reader.convert("3/4zzzz")).should_be({ chars: 3, dots: undefined, numer: 3, denom: 4 });
+        },
+    }
+);
+
+describe('translate abc punctuation to vurm', {
+        'before': function () {
+            reader = new AbcPunctuationReader();
+        },
+        "reads (xx properly": function(){
+            value_of(reader.convert("(zzzz")).should_be({ chars: 1, tieStart: '(', tieEnd: undefined, bar: undefined, space: undefined });
+        },
+        "reads )xx properly": function(){
+            value_of(reader.convert(")zzzz")).should_be({ chars: 1, tieStart: undefined, tieEnd: ')', bar: undefined, space: undefined });
+        },
+        "reads |xx properly": function(){
+            value_of(reader.convert("|zzzz")).should_be({ chars: 1, tieStart: undefined, tieEnd: undefined, bar: '|', space: undefined });
+        },
+        "reads space properly": function(){
+            value_of(reader.convert("  zzzz")).should_be({ chars: 2, tieStart: undefined, tieEnd: undefined, bar: undefined, space: '  ' });
         },
     }
 );
 
 describe('translate abc prefix to chunks', {
         'before': function () {
-            chunkReader = new AbcChunkReader();
+            reader = new AbcChunkReader();
         },
         "reads C properly": function(){
-            value_of(chunkReader.convert("Czzzz")).should_be({
+            value_of(reader.convert("Czzzz")).should_be({
                 chars: 1,
                 notes: [ {note:60, duration:1}, ]
             });
         },
+        "reads () |C,, ignoring punctuation for now": function(){
+            value_of(reader.convert("() |C,,zzzz")).should_be(
+                { chars:1, tieStart:'(', tieEnd:undefined, bar:undefined, space:undefined }
+            );
+        },
         "reads C,, properly": function(){
-            value_of(chunkReader.convert("C,,zzzz")).should_be({
+            value_of(reader.convert("C,,zzzz")).should_be({
                 chars: 3,
                 notes: [ {note:60-12-12, duration:1}, ]
             });
         },
         "reads C,>d'xx properlee": function(){
-            value_of(chunkReader.convert("C,>d'xx")).should_be({
+            value_of(reader.convert("C,>d'xx")).should_be({
                 chars: 5,
                 notes: [
                     {note:60-12, duration:1.5},
@@ -85,7 +109,7 @@ describe('translate abc prefix to chunks', {
             });
         },
         "reads C,<d'xx properlee": function(){
-            value_of(chunkReader.convert("C,<<d'xx")).should_be({
+            value_of(reader.convert("C,<<d'xx")).should_be({
                 chars: 6,
                 notes: [
                     {note:60-12, duration:0.25},
@@ -94,7 +118,7 @@ describe('translate abc prefix to chunks', {
             });
         },
         "reads aBc,D' properly": function(){
-            value_of(chunkReader.convert("aBc,D'")).should_be({
+            value_of(reader.convert("aBc,D'")).should_be({
                 chars: 1,
                 notes: [ {note:60+12+9, duration:1}, ]
             });
@@ -118,38 +142,42 @@ var vurm = {
 
 describe('translate abc to vurm', {
         'before': function () {
-            abcToVurm = new AbcReader();
+            reader = new AbcReader();
         },
         "reads C properly": function(){
-            value_of(abcToVurm.convert("C")).should_be({
+            value_of(reader.convert("C")).should_be({
                 stream : [ {note:60, duration:1} ]
             });
         },
         "reads C, properly": function(){
-            value_of(abcToVurm.convert("C,")).should_be({
+            value_of(reader.convert("C,")).should_be({
                 stream : [ {note:60-12, duration:1} ]
             });
         },
         "reports parse error": function(){
-            value_of(abcToVurm.convert("C'")).should_be({
+            value_of(reader.convert("C'")).should_be({
                 stream : [
                     {note:60, duration:1},
                     {parseFailAt:"'"}
                 ]
             });
         },
-        "reads aBc,D' properly": function(){
-            value_of(abcToVurm.convert("aBc'D,")).should_be({
+        "reads a(Bc')|  D, properly": function(){
+            value_of(reader.convert("a(Bc')|  D,")).should_be({
                 stream : [
                     {note:81, duration:1},
+                    { chars:1, tieStart:'(', tieEnd:undefined, bar:undefined, space:undefined },
                     {note:71, duration:1},
                     {note:84, duration:1},
+                    { chars:1, tieStart:undefined, tieEnd:')', bar:undefined, space:undefined },
+                    { chars:1, tieStart:undefined, tieEnd:undefined, bar:'|', space:undefined },
+                    { chars:2, tieStart:undefined, tieEnd:undefined, bar:undefined, space:'  ' },
                     {note:50, duration:1}
                 ]
             });
         },
         "reads a/B' properly": function(){
-            value_of(abcToVurm.convert("a/B")).should_be({
+            value_of(reader.convert("a/B")).should_be({
                 stream : [
                     {note:81, duration:0.5},
                     {note:71, duration:1},
