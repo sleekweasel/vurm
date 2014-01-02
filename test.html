@@ -31,6 +31,34 @@ describe('translate abc prefix to notes', {
     }
 );
 
+describe('translate abc prefix to durations', {
+        'before': function () {
+            durationReader = new AbcDurationReader();
+        },
+        "defaults empty properly": function(){
+            value_of(durationReader.convert("Czzzz")).should_be({ chars: 0, dots: undefined, numer: 1, denom: 1 });
+        },
+        "reads postdots properly": function(){
+            value_of(durationReader.convert("<<<>Czzzz")).should_be({ chars: 3, dots: '<<<', numer: undefined, denom: undefined });
+        },
+        "reads predots properly": function(){
+            value_of(durationReader.convert(">><Czzzz")).should_be({ chars: 2, dots: '>>', numer: undefined, denom: undefined });
+        },
+        "reads plain 3 properly": function(){
+            value_of(durationReader.convert("3zzzz")).should_be({ chars: 1, dots: undefined, numer: 3, denom: 1 });
+        },
+        "defaults / properly": function(){
+            value_of(durationReader.convert("/zzzz")).should_be({ chars: 1, dots: undefined, numer: 1, denom: 2 });
+        },
+        "reads 3/ properly": function(){
+            value_of(durationReader.convert("3/zzzz")).should_be({ chars: 2, dots: undefined, numer: 3, denom: 2 });
+        },
+        "reads 3/4 properly": function(){
+            value_of(durationReader.convert("3/4zzzz")).should_be({ chars: 3, dots: undefined, numer: 3, denom: 4 });
+        },
+    }
+);
+
 describe('translate abc prefix to chunks', {
         'before': function () {
             chunkReader = new AbcChunkReader();

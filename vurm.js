@@ -49,20 +49,19 @@ abcNoteReader = new AbcNoteReader();
 
 AbcDurationReader = function() {
     this.convert = function(abc) {
-        var d = /^((<+|>+|)|(\/?)([0-9]*))/.exec(abc);
+        var d = /^(<+|>+)|([0-9]*)(\/([0-9]*))?/.exec(abc);
         if (!d) {
             return null;
         }
 
-        var chunk = { chars: d[0].length, dots: d[2] };
+        var chunk = { chars: d[0].length, dots: d[1], numer: d[2], denom: d[4] };
 
-        if (!d[4]) {
-            d[4] = d[3] ? "2" : "1";
+        if (!chunk.dots) {
+            if (chunk.denom == undefined) { chunk.denom = 1; }
+            if (chunk.denom == '') { chunk.denom = 2; }
+            if (chunk.numer == '') { chunk.numer = 1; }
         }
-   
-        chunk.reciprocal = d[3];
-        chunk.num = d[4];
-        
+
         return chunk;
     }
 }
@@ -98,7 +97,7 @@ AbcChunkReader = function() {
             chunk.notes.push({ note: p.note, duration: d1 });
             chunk.notes.push({ note: p2.note, duration: d2 });
         } else {
-            chunk.notes.push({ note: p.note, duration: d.reciprocal ? 1 / d.num : d.num });
+            chunk.notes.push({ note: p.note, duration: d.numer / d.denom });
         }
         return chunk;
     }
@@ -162,7 +161,6 @@ vurmToMidi = new VurmToMidi();
 function onAbcChanged() {
     var abc = document.getElementById('abc').value;
     var vurm = abcReader.convert(abc);
-alert(abc);
     var midi = vurmToMidi.convert(vurm);
     MIDI.Player.setMidiData(midi);
     MIDI.Player.resume();
