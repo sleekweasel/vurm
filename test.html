@@ -171,8 +171,8 @@ describe('translate vurm to midi', {
                         // Meta: title, key, etc.
                     ],
                     [
-                        { deltaTime: 0,  type: 'channel', subtype: 'noteOn',  noteNumber: 60, velocity: 127 },
-                        { deltaTime: 64, type: 'channel', subtype: 'noteOff', noteNumber: 60, velocity: 0 },
+                        { deltaTime: 0,  type: 'channel', subtype: 'noteOn',  channel: 1, noteNumber: 60, velocity: 127 },
+                        { deltaTime: 64, type: 'channel', subtype: 'noteOff', channel: 1, noteNumber: 60, velocity: 0 },
                     ],
                 ]
             });
@@ -194,10 +194,10 @@ describe('translate vurm to midi', {
                         // Meta: title, key, etc.
                     ],
                     [
-                        { deltaTime: 64*0, type: 'channel', subtype: 'noteOn',  noteNumber: 60, velocity: 127 },
-                        { deltaTime: 64*1, type: 'channel', subtype: 'noteOff', noteNumber: 60, velocity: 0 },
-                        { deltaTime: 64*1, type: 'channel', subtype: 'noteOn',  noteNumber: 62, velocity: 127 },
-                        { deltaTime: 64*2, type: 'channel', subtype: 'noteOff', noteNumber: 62, velocity: 0 },
+                        { deltaTime: 0, type: 'channel', subtype: 'noteOn',  channel: 1, noteNumber: 60, velocity: 127 },
+                        { deltaTime: 64, type: 'channel', subtype: 'noteOff', channel: 1, noteNumber: 60, velocity: 0 },
+                        { deltaTime: 0, type: 'channel', subtype: 'noteOn',  channel: 1, noteNumber: 62, velocity: 127 },
+                        { deltaTime: 64, type: 'channel', subtype: 'noteOff', channel: 1, noteNumber: 62, velocity: 0 },
                     ],
                 ]
             });
