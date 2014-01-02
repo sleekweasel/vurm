@@ -7,8 +7,15 @@
  <script src="./MIDI.js/js/MIDI/LoadPlugin.js" type="text/javascript"></script>
  <script src="./MIDI.js/js/MIDI/Plugin.js" type="text/javascript"></script>
  <script src="./MIDI.js/js/MIDI/Player.js" type="text/javascript"></script>
+ <script src="./MIDI.js/js/MusicTheory/Synesthesia.js" type="text/javascript"></script>
+ <script src="./MIDI.js/js/Widgets/Loader.js" type="text/javascript"></script>
+ <script src="./MIDI.js/js/Window/Event.js" type="text/javascript"></script>
  <script src="./MIDI.js/js/Window/DOMLoader.XMLHttp.js" type="text/javascript"></script>
  <script src="./MIDI.js/js/Window/DOMLoader.script.js" type="text/javascript"></script>
+ <!-- jasmid package -->
+ <script src="./MIDI.js/inc/jasmid/stream.js"></script>
+ <script src="./MIDI.js/inc/jasmid/midifile.js"></script>
+ <script src="./MIDI.js/inc/jasmid/replayer.js"></script>
  <!-- extras -->
  <script src="./MIDI.js/inc/Base64.js" type="text/javascript"></script>
  <script src="./MIDI.js/inc/base64binary.js" type="text/javascript"></script>
@@ -17,8 +24,9 @@
 <body>
 <div id="abc"></div>
 <div id="controls">
-    <input type="button" value="pause" onclick="MIDI.player.pause()" /> 
-    <input type="button" value="start" onclick="MIDI.player.resume()" /> 
+    <input type="button" value="stop" onclick="MIDI.Player.stop()" /> 
+    <input type="button" value="pause" onclick="MIDI.Player.pause()" /> 
+    <input type="button" value="start" onclick="MIDI.Player.resume()" /> 
 </div>
 <script type="text/javascript">
 

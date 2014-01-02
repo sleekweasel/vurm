@@ -171,20 +171,18 @@ describe('translate vurm to midi', {
                         // Meta: title, key, etc.
                     ],
                     [
-                        { deltaTime: 0,  type: channel, subtype: noteOn,  noteNumber: 60, velocity: 127 },
-                        { deltaTime: 64, type: channel, subtype: noteOff, noteNumber: 60, velocity: 0 },
+                        { deltaTime: 0,  type: 'channel', subtype: 'noteOn',  noteNumber: 60, velocity: 127 },
+                        { deltaTime: 64, type: 'channel', subtype: 'noteOff', noteNumber: 60, velocity: 0 },
                     ],
                 ]
             });
         },
         "no-repeat multi-note stream": function(){
             value_of(vurmToMidi.convert({
-                stream : [ {note:60, duration:1} ],
-                stream : [ {note:62, duration:1} ],
-                stream : [ {note:64, duration:1} ],
-                stream : [ {note:65, duration:1} ],
-                stream : [ {note:67, duration:1} ],
-                stream : [ {note:69, duration:1} ],
+                stream : [
+                    {note:60, duration:1},
+                    {note:62, duration:1},
+                ],
             })).should_be({
                 header: {
                     formatType: 1,
@@ -196,18 +194,10 @@ describe('translate vurm to midi', {
                         // Meta: title, key, etc.
                     ],
                     [
-                        { deltaTime: 64*0, type: channel, subtype: noteOn,  noteNumber: 60, velocity: 127 },
-                        { deltaTime: 64*1, type: channel, subtype: noteOff, noteNumber: 60, velocity: 0 },
-                        { deltaTime: 64*1, type: channel, subtype: noteOn,  noteNumber: 62, velocity: 127 },
-                        { deltaTime: 64*2, type: channel, subtype: noteOff, noteNumber: 62, velocity: 0 },
-                        { deltaTime: 64*2, type: channel, subtype: noteOn,  noteNumber: 64, velocity: 127 },
-                        { deltaTime: 64*3, type: channel, subtype: noteOff, noteNumber: 64, velocity: 0 },
-                        { deltaTime: 64*3, type: channel, subtype: noteOn,  noteNumber: 65, velocity: 127 },
-                        { deltaTime: 64*4, type: channel, subtype: noteOff, noteNumber: 65, velocity: 0 },
-                        { deltaTime: 64*4, type: channel, subtype: noteOn,  noteNumber: 67, velocity: 127 },
-                        { deltaTime: 64*5, type: channel, subtype: noteOff, noteNumber: 67, velocity: 0 },
-                        { deltaTime: 64*6, type: channel, subtype: noteOn,  noteNumber: 69, velocity: 127 },
-                        { deltaTime: 64*6, type: channel, subtype: noteOff, noteNumber: 69, velocity: 0 },
+                        { deltaTime: 64*0, type: 'channel', subtype: 'noteOn',  noteNumber: 60, velocity: 127 },
+                        { deltaTime: 64*1, type: 'channel', subtype: 'noteOff', noteNumber: 60, velocity: 0 },
+                        { deltaTime: 64*1, type: 'channel', subtype: 'noteOn',  noteNumber: 62, velocity: 127 },
+                        { deltaTime: 64*2, type: 'channel', subtype: 'noteOff', noteNumber: 62, velocity: 0 },
                     ],
                 ]
             });

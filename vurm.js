@@ -130,20 +130,42 @@ AbcReader = function() {
 
 abcReader = new AbcReader();
 
+VurmToMidi = function() {
+    this.convert = function (vurm) {
+        notes = [];
+        var t = 0;
+        var s = vurm.stream;
+        for (var i = 0; i < s.length; ++i) {
+            n = s[i];
+            notes.push({deltaTime: 0, type: "channel", subtype: 'noteOn', channel:1, noteNumber: n.note, velocity:127});
+            t = n.duration * 64;
+            notes.push({deltaTime: t, type: "channel", subtype: 'noteOff', channel:1, noteNumber: n.note, velocity:0});
+        }
+        return {
+            header: {
+                formatType: 1,
+                trackCount: 2,
+                ticksPerBeat: 64 // per crotchet
+            },
+            tracks: [
+                [
+                    // Meta: title, key, etc.
+                ],
+                notes
+            ]
+        };
+    }
+}
+
+vurmToMidi = new VurmToMidi();
+
 function onceLoaded() {
     MIDI.programChange(0, 0);
     var abc = window.location.hash.slice(1);
     var vurm = abcReader.convert(abc);
+    var midi = vurmToMidi.convert(vurm);
 
-    var time = 0;
-    var period = 1;
-    for (var i = 0; i < vurm.stream.length; ++i) {
-        var n = vurm.stream[i];
-        if (n.note) {
-            MIDI.noteOn(0, n.note, 127, time);
-            time += 1 * n.duration;
-            document.getElementById('abc').innerHTML += "=" + n.note + "-" + time + " ";
-        }
-    }
+    MIDI.Player.setMidiData(midi);
+//    document.getElementById('abc').innerHTML += "=" + n.note + "-" + time + " ";
 }
 
