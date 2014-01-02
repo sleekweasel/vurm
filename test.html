@@ -266,6 +266,34 @@ describe('translate vurm to midi', {
                 ]
             });
         },
+        "no-repeat tied barred multi-note stream": function(){
+            value_of(vurmToMidi.convert({
+                stream : [
+                    { chars:1, tieStart:'(', tieEnd:undefined, bar:undefined, space:undefined },
+                    {note:60, duration:1},
+                    {note:62, duration:1},
+                    { chars:1, tieStart:undefined, tieEnd:')', bar:undefined, space:undefined },
+                    { chars:1, tieStart:undefined, tieEnd:undefined, bar:'|', space:undefined },
+                ],
+            })).should_be({
+                header: {
+                    formatType: 1,
+                    trackCount: 2,
+                    ticksPerBeat: 64 // per crotchet, ie 64*vurm.duration
+                },
+                tracks: [
+                    [
+                        // Meta: title, key, etc.
+                    ],
+                    [
+                        { deltaTime: 0, type: 'channel', subtype: 'noteOn',  channel: 1, noteNumber: 60, velocity: 127 },
+                        { deltaTime: 64, type: 'channel', subtype: 'noteOff', channel: 1, noteNumber: 60, velocity: 0 },
+                        { deltaTime: 0, type: 'channel', subtype: 'noteOn',  channel: 1, noteNumber: 62, velocity: 127 },
+                        { deltaTime: 64, type: 'channel', subtype: 'noteOff', channel: 1, noteNumber: 62, velocity: 0 },
+                    ],
+                ]
+            });
+        },
     }
 );
 

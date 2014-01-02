@@ -155,9 +155,11 @@ VurmToMidi = function() {
         var s = vurm.stream;
         for (var i = 0; i < s.length; ++i) {
             n = s[i];
-            notes.push({deltaTime: 0, type: "channel", subtype: 'noteOn', channel:1, noteNumber: n.note, velocity:127});
-            t = n.duration * 64;
-            notes.push({deltaTime: t, type: "channel", subtype: 'noteOff', channel:1, noteNumber: n.note, velocity:0});
+            if (n.note) {
+                notes.push({deltaTime: 0, type: "channel", subtype: 'noteOn', channel:1, noteNumber: n.note, velocity:127});
+                t = n.duration * 64;
+                notes.push({deltaTime: t, type: "channel", subtype: 'noteOff', channel:1, noteNumber: n.note, velocity:0});
+            }
         }
         return {
             header: {
