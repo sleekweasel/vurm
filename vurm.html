@@ -22,8 +22,10 @@
  <script src="vurm.js" type="text/javascript"></script>
 </head>
 <body>
-<div id="abc"></div>
+Current aim: play <a href='http://www.stephenmerrony.co.uk/ABC/Carols/G/Greensleeves.abc'>this</a> and its siblings
+<textarea id="abc" cols=80 rows=6></textarea>
 <div id="controls">
+    <input type="button" value="reparse" onclick="onAbcChanged()" /> 
     <input type="button" value="stop" onclick="MIDI.Player.stop()" /> 
     <input type="button" value="pause" onclick="MIDI.Player.pause()" /> 
     <input type="button" value="start" onclick="MIDI.Player.resume()" /> 

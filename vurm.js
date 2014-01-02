@@ -159,13 +159,18 @@ VurmToMidi = function() {
 
 vurmToMidi = new VurmToMidi();
 
+function onAbcChanged() {
+    var abc = document.getElementById('abc').value;
+    var vurm = abcReader.convert(abc);
+alert(abc);
+    var midi = vurmToMidi.convert(vurm);
+    MIDI.Player.setMidiData(midi);
+    MIDI.Player.resume();
+}
+
 function onceLoaded() {
     MIDI.programChange(0, 0);
-    var abc = window.location.hash.slice(1);
-    var vurm = abcReader.convert(abc);
-    var midi = vurmToMidi.convert(vurm);
-
-    MIDI.Player.setMidiData(midi);
-//    document.getElementById('abc').innerHTML += "=" + n.note + "-" + time + " ";
+    document.getElementById('abc').textContent = window.location.hash.slice(1);
+    onAbcChanged();
 }
 

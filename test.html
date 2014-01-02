@@ -120,6 +120,14 @@ describe('translate abc to vurm', {
                 ]
             });
         },
+        "reads a/B' properly": function(){
+            value_of(abcToVurm.convert("a/B")).should_be({
+                stream : [
+                    {note:81, duration:0.5},
+                    {note:71, duration:1},
+                ]
+            });
+        },
     }
 );
 
