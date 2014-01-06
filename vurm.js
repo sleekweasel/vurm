@@ -160,31 +160,17 @@ VurmToMidi = function() {
         for (var i = 0; i < s.length; ++i) {
             n = s[i];
             if ('ledger' in n) {
-                var note = n.ledger;
-                if (note > 0) {
-                // note="C D EF G A Bc d ef g a b".indexOf(r[5] ? r[5] : r[7]);
-                //  C  D  E--F  G  A  B--c  d  e--f  g  a  b--c'
-                //  0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
-                //  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18
-                //  0  0  0  1  1  1  1  1  1  1  2  2  2  2  2
-                //  0  2  4  6  8 10 12 14 16 18 20 22 24 26 28
-                //  0  2  4  6  7  9 11 13 15 17 18 20 22 24 25
-                    note += note - Math.floor((note+4)/7) - Math.floor(note/7);
-                }
-                if (note < 0) {
-                //  C; D; E;-F; G; A; B;-C, D, E,-F, G, A, B,-C
-                //-14-13-12-11-10 -9 -8 -7 -6 -5 -4 -3 -2 -1  0
-                //-28-26-24-22-20-18-16-14-13-10 -8 -6 -4 -2  0
-                //-26-24-22-21-19-17-15-12-10 -8 -7 -5 -3 -1  0
-                // 20 19 18 17 16 15-14-13-12-11-10 -9 -8 -7 -6 -5 -4 -3 -2 -1  0
-                //-16-15-14-13-12-11-10 -9 -8 -7 -6 -5 -4 -3 -2 -1  0
-                // 
-                    note += note - Math.ceil((note-2)/7) - Math.ceil((note-6)/7);
-                }
-                note += 60; // - MIDI.pianoKeyOffset;
-                notes.push({deltaTime: 0, type: "channel", subtype: 'noteOn', channel:1, noteNumber: note, velocity:127});
+                var ledger = n.ledger;
+                var letter = (ledger % 7 + 7 ) % 7;
+                var octave = (ledger - letter)/7;
+                // c-d-ef-g-a-bc
+                // 0=0 1=2 2=4 3=5 4=7 5=9 6=11
+                var semitones = letter*2 - Math.floor((letter+4)/7) - Math.floor(letter/7);
+                // semitones += key(letter);
+                var midi = semitones + octave*12 + 60; // = MIDI.pianoKeyOffset;
+                notes.push({deltaTime: 0, type: "channel", subtype: 'noteOn', channel:1, noteNumber: midi, velocity:127});
                 var t = n.duration * 64;
-                notes.push({deltaTime: t, type: "channel", subtype: 'noteOff', channel:1, noteNumber: note, velocity:0});
+                notes.push({deltaTime: t, type: "channel", subtype: 'noteOff', channel:1, noteNumber: midi, velocity:0});
             }
         }
         return {
