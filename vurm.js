@@ -21,27 +21,30 @@
 
 AbcNoteReader = function() {
     this.convert = function(abc) {
-        var r = /^((z)|([_=^]*)(([a-g])('*)|([A-G])(,*)))/.exec(abc);
+        var r = /^((z)|([_=^]*)([a-gA-G])([',]*))/.exec(abc);
         if (!r) {
             return null;
         }
 
-        var note;
+        var note = { chars: r[1].length };
         if (!r[2]) {
-            note="C D EF G A Bc d ef g a b".indexOf(r[5] ? r[5] : r[7]);
-            if (r[6]) {
-                note += r[6].length * 12;
+            var accidence = r[3];
+            if (accidence) {
+                var l = accidence.length;
+                note.sharps = ("_=^".indexOf(accidence.charAt(0)) - 1) * l;
             }
-            if (r[8]) {
-                note -= r[8].length * 12;
+            var step = r[5];
+            var octave = 0;
+            if (step) {
+                var l = step.length;
+                for (var i = 0; i < l ; ++i) {
+                    octave += step.charAt(i) == "'" ? 7 : -7;
+                }
             }
-            if (r[3] && r[3].length) {
-                note += ("_=^".indexOf(r[3].charAt(0)) - 2) * r[3].length;
-            }
-            note += 60; // - MIDI.pianoKeyOffset;
+            note.ledger = octave + "CDEFGABcdefgab".indexOf(r[4]);
         }
 
-        return { chars: r[1].length, note: note };
+        return note;
     }
 }
 
@@ -91,6 +94,7 @@ AbcChunkReader = function() {
         }
         var chunk = { chars: p.chars, notes: [] };
         abc = abc.slice(p.chars);
+        delete p.chars;
         var d = abcDurationReader.convert(abc);
         if (!d) {
             return null;
@@ -104,15 +108,16 @@ AbcChunkReader = function() {
             }
             abc = abc.slice(p2.chars);
             chunk.chars += p2.chars;
+            delete p2.chars;
 
             var dd = Math.pow(0.5, d.dots.length);
-            var d1 = d.dots.match('>') ? 2-dd : dd;
-            var d2 = d.dots.match('<') ? 2-dd : dd;
+            p.duration = d.dots.match('>') ? 2-dd : dd;
+            p2.duration = d.dots.match('<') ? 2-dd : dd;
 
-            chunk.notes.push({ note: p.note, duration: d1 });
-            chunk.notes.push({ note: p2.note, duration: d2 });
+            chunk.notes.push(p, p2);
         } else {
-            chunk.notes.push({ note: p.note, duration: (1*d.numer) / (1*d.denom) });
+            p.duration = (1*d.numer) / (1*d.denom);
+            chunk.notes.push(p);
         }
         return chunk;
     }
@@ -124,17 +129,17 @@ AbcReader = function() {
     this.convert = function(abc) {
         var chunks = []
         while (abc.length > 0) {
-            var p = abcChunkReader.convert(abc);
+            var chunk = abcChunkReader.convert(abc);
             var old = abc;
-            if (p) {
-                abc = abc.slice(p.chars);
-                if (p.notes) {
-                    for (var i = 0; i < p.notes.length; ++i ) {
-                        var n = p.notes[i];
-                        chunks.push({note: n.note, duration: n.duration});
+            if (chunk) {
+                abc = abc.slice(chunk.chars);
+                if (chunk.notes) {
+                    for (var i = 0; i < chunk.notes.length; ++i ) {
+                        var n = chunk.notes[i];
+                        chunks.push(n);
                     }
                 } else {
-                    chunks.push(p);
+                    chunks.push(chunk);
                 }
             }
             if (old == abc) {
@@ -151,14 +156,35 @@ abcReader = new AbcReader();
 VurmToMidi = function() {
     this.convert = function (vurm) {
         notes = [];
-        var t = 0;
         var s = vurm.stream;
         for (var i = 0; i < s.length; ++i) {
             n = s[i];
-            if (n.note) {
-                notes.push({deltaTime: 0, type: "channel", subtype: 'noteOn', channel:1, noteNumber: n.note, velocity:127});
-                t = n.duration * 64;
-                notes.push({deltaTime: t, type: "channel", subtype: 'noteOff', channel:1, noteNumber: n.note, velocity:0});
+            if ('ledger' in n) {
+                var note = n.ledger;
+                if (note > 0) {
+                // note="C D EF G A Bc d ef g a b".indexOf(r[5] ? r[5] : r[7]);
+                //  C  D  E--F  G  A  B--c  d  e--f  g  a  b--c'
+                //  0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
+                //  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18
+                //  0  0  0  1  1  1  1  1  1  1  2  2  2  2  2
+                //  0  2  4  6  8 10 12 14 16 18 20 22 24 26 28
+                //  0  2  4  6  7  9 11 13 15 17 18 20 22 24 25
+                    note += note - Math.floor((note+4)/7) - Math.floor(note/7);
+                }
+                if (note < 0) {
+                //  C; D; E;-F; G; A; B;-C, D, E,-F, G, A, B,-C
+                //-14-13-12-11-10 -9 -8 -7 -6 -5 -4 -3 -2 -1  0
+                //-28-26-24-22-20-18-16-14-13-10 -8 -6 -4 -2  0
+                //-26-24-22-21-19-17-15-12-10 -8 -7 -5 -3 -1  0
+                // 20 19 18 17 16 15-14-13-12-11-10 -9 -8 -7 -6 -5 -4 -3 -2 -1  0
+                //-16-15-14-13-12-11-10 -9 -8 -7 -6 -5 -4 -3 -2 -1  0
+                // 
+                    note += note - Math.ceil((note-2)/7) - Math.ceil((note-6)/7);
+                }
+                note += 60; // - MIDI.pianoKeyOffset;
+                notes.push({deltaTime: 0, type: "channel", subtype: 'noteOn', channel:1, noteNumber: note, velocity:127});
+                var t = n.duration * 64;
+                notes.push({deltaTime: t, type: "channel", subtype: 'noteOff', channel:1, noteNumber: note, velocity:0});
             }
         }
         return {

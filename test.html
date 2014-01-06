@@ -13,17 +13,38 @@ describe('translate abc prefix to notes', {
         'before': function () {
             reader = new AbcNoteReader();
         },
-        "reads C properly": function(){
-            value_of(reader.convert("Czzzz")).should_be({ chars: 1, note: 60 });
+        "reads rest properly": function(){
+            value_of(reader.convert("zzzz")).should_be({ chars: 1 });
         },
-        "reads c properly": function(){
-            value_of(reader.convert("czzzz")).should_be({ chars: 1, note: 60 + 12 });
+        "reads middle C properly": function(){
+            value_of(reader.convert("Czzzz")).should_be({ chars: 1, ledger: 0 });
         },
-        "reads e,, properly": function(){
-            value_of(reader.convert("E,,zzzz")).should_be({ chars: 3, note: 60 + 4 - 12 - 12 });
+        "reads middle C# properly": function(){
+            value_of(reader.convert("^Czzzz")).should_be({ chars: 2, ledger: 0, sharps: 1 });
+        },
+        "reads middle C## properly": function(){
+            value_of(reader.convert("^^Czzzz")).should_be({ chars: 3, ledger: 0, sharps: 2 });
+        },
+        "reads middle Gb properly": function(){
+            value_of(reader.convert("_Gzzz")).should_be({ chars: 2, ledger: 4, sharps: -1 });
+        },
+        "reads middle Gbb properly": function(){
+            value_of(reader.convert("__Gezzz")).should_be({ chars: 3, ledger: 4, sharps: -2 });
+        },
+        "reads upper c properly": function(){
+            value_of(reader.convert("czzzz")).should_be({ chars: 1, ledger: 7 });
+        },
+        "reads upper C' properly": function(){
+            value_of(reader.convert("C'zzzz")).should_be({ chars: 2, ledger: 7 });
+        },
+        "reads C',' properly": function(){
+            value_of(reader.convert("C,''zzzz")).should_be({ chars: 4, ledger: 7 });
+        },
+        "reads E,, properly": function(){
+            value_of(reader.convert("E,,zzzz")).should_be({ chars: 3, ledger: 2 - 14 });
         },
         "reads A' properly": function(){
-            value_of(reader.convert("A'zzzz")).should_be({ chars: 1, note: 60 + 9 });
+            value_of(reader.convert("A'zzzz")).should_be({ chars: 2, ledger: 5 + 7});
         },
         "ignores ' properly": function(){
             value_of(reader.convert("'zzzz")).should_be(null);
@@ -85,7 +106,7 @@ describe('translate abc prefix to chunks', {
         "reads C properly": function(){
             value_of(reader.convert("Czzzz")).should_be({
                 chars: 1,
-                notes: [ {note:60, duration:1}, ]
+                notes: [ {ledger:0, duration:1}, ]
             });
         },
         "reads () |C,, ignoring punctuation for now": function(){
@@ -96,15 +117,15 @@ describe('translate abc prefix to chunks', {
         "reads C,, properly": function(){
             value_of(reader.convert("C,,zzzz")).should_be({
                 chars: 3,
-                notes: [ {note:60-12-12, duration:1}, ]
+                notes: [ {ledger:-14, duration:1}, ]
             });
         },
         "reads C,>d'xx properlee": function(){
             value_of(reader.convert("C,>d'xx")).should_be({
                 chars: 5,
                 notes: [
-                    {note:60-12, duration:1.5},
-                    {note:60+2+12+12, duration:0.5},
+                    {ledger:-7, duration:1.5},
+                    {ledger:15, duration:0.5},
                 ]
             });
         },
@@ -112,15 +133,15 @@ describe('translate abc prefix to chunks', {
             value_of(reader.convert("C,<<d'xx")).should_be({
                 chars: 6,
                 notes: [
-                    {note:60-12, duration:0.25},
-                    {note:60+2+12+12, duration:1.75},
+                    {ledger:-7, duration:0.25},
+                    {ledger:15, duration:1.75},
                 ]
             });
         },
         "reads aBc,D' properly": function(){
             value_of(reader.convert("aBc,D'")).should_be({
                 chars: 1,
-                notes: [ {note:60+12+9, duration:1}, ]
+                notes: [ {ledger:12, duration:1}, ]
             });
         },
     }
@@ -134,7 +155,7 @@ var vurm = {
         },
         stream : [
             {
-                note: 60, // Middle C; (?) all sharps and flats are explicit despite key signature.
+                ledger: 0, // Middle C; (?) all sharps and flats are explicit despite key signature.
                 duration: 1, // 1 is a crotchet. Consider 96 as a crotchet for easy triples, or fractions.
             } // , ...
         ]
@@ -146,41 +167,41 @@ describe('translate abc to vurm', {
         },
         "reads C properly": function(){
             value_of(reader.convert("C")).should_be({
-                stream : [ {note:60, duration:1} ]
+                stream : [ {ledger:0, duration:1} ]
             });
         },
         "reads C, properly": function(){
             value_of(reader.convert("C,")).should_be({
-                stream : [ {note:60-12, duration:1} ]
+                stream : [ {ledger:-7, duration:1} ]
             });
         },
         "reports parse error": function(){
-            value_of(reader.convert("C'")).should_be({
+            value_of(reader.convert("Cx")).should_be({
                 stream : [
-                    {note:60, duration:1},
-                    {parseFailAt:"'"}
+                    {ledger:0, duration:1},
+                    {parseFailAt:"x"}
                 ]
             });
         },
         "reads a(Bc')|  D, properly": function(){
             value_of(reader.convert("a(Bc')|  D,")).should_be({
                 stream : [
-                    {note:81, duration:1},
+                    {ledger:12, duration:1},
                     { chars:1, tieStart:'(', tieEnd:undefined, bar:undefined, space:undefined },
-                    {note:71, duration:1},
-                    {note:84, duration:1},
+                    {ledger:6, duration:1},
+                    {ledger:14, duration:1},
                     { chars:1, tieStart:undefined, tieEnd:')', bar:undefined, space:undefined },
                     { chars:1, tieStart:undefined, tieEnd:undefined, bar:'|', space:undefined },
                     { chars:2, tieStart:undefined, tieEnd:undefined, bar:undefined, space:'  ' },
-                    {note:50, duration:1}
+                    {ledger:-6, duration:1}
                 ]
             });
         },
         "reads a/B' properly": function(){
             value_of(reader.convert("a/B")).should_be({
                 stream : [
-                    {note:81, duration:0.5},
-                    {note:71, duration:1},
+                    {ledger:12, duration:0.5},
+                    {ledger:6, duration:1},
                 ]
             });
         },
@@ -223,7 +244,7 @@ describe('translate vurm to midi', {
         },
         "One note stream": function(){
             value_of(vurmToMidi.convert({
-                stream : [ {note:60, duration:1} ]
+                stream : [ {ledger:0, duration:1} ]
             })).should_be({
                 header: {
                     formatType: 1,
@@ -241,11 +262,13 @@ describe('translate vurm to midi', {
                 ]
             });
         },
-        "no-repeat multi-note stream": function(){
+        "no-repeat D-EF-G stream": function(){
             value_of(vurmToMidi.convert({
                 stream : [
-                    {note:60, duration:1},
-                    {note:62, duration:1},
+                    {ledger:1, duration:1},
+                    {ledger:2, duration:1},
+                    {ledger:3, duration:1},
+                    {ledger:4, duration:1},
                 ],
             })).should_be({
                 header: {
@@ -258,6 +281,72 @@ describe('translate vurm to midi', {
                         // Meta: title, key, etc.
                     ],
                     [
+                        { deltaTime: 0, type: 'channel', subtype: 'noteOn',  channel: 1, noteNumber: 62, velocity: 127 },
+                        { deltaTime: 64, type: 'channel', subtype: 'noteOff', channel: 1, noteNumber: 62, velocity: 0 },
+                        { deltaTime: 0, type: 'channel', subtype: 'noteOn',  channel: 1, noteNumber: 64, velocity: 127 },
+                        { deltaTime: 64, type: 'channel', subtype: 'noteOff', channel: 1, noteNumber: 64, velocity: 0 },
+                        { deltaTime: 0, type: 'channel', subtype: 'noteOn',  channel: 1, noteNumber: 65, velocity: 127 },
+                        { deltaTime: 64, type: 'channel', subtype: 'noteOff', channel: 1, noteNumber: 65, velocity: 0 },
+                        { deltaTime: 0, type: 'channel', subtype: 'noteOn',  channel: 1, noteNumber: 67, velocity: 127 },
+                        { deltaTime: 64, type: 'channel', subtype: 'noteOff', channel: 1, noteNumber: 67, velocity: 0 },
+                    ],
+                ]
+            });
+        },
+        "no-repeat A-Bc-d stream": function(){
+            value_of(vurmToMidi.convert({
+                stream : [
+                    {ledger:5, duration:1},
+                    {ledger:6, duration:1},
+                    {ledger:7, duration:1},
+                    {ledger:8, duration:1},
+                ],
+            })).should_be({
+                header: {
+                    formatType: 1,
+                    trackCount: 2,
+                    ticksPerBeat: 64 // per crotchet, ie 64*vurm.duration
+                },
+                tracks: [
+                    [
+                        // Meta: title, key, etc.
+                    ],
+                    [
+                        { deltaTime: 0, type: 'channel', subtype: 'noteOn',  channel: 1, noteNumber: 69, velocity: 127 },
+                        { deltaTime: 64, type: 'channel', subtype: 'noteOff', channel: 1, noteNumber: 69, velocity: 0 },
+                        { deltaTime: 0, type: 'channel', subtype: 'noteOn',  channel: 1, noteNumber: 71, velocity: 127 },
+                        { deltaTime: 64, type: 'channel', subtype: 'noteOff', channel: 1, noteNumber: 71, velocity: 0 },
+                        { deltaTime: 0, type: 'channel', subtype: 'noteOn',  channel: 1, noteNumber: 72, velocity: 127 },
+                        { deltaTime: 64, type: 'channel', subtype: 'noteOff', channel: 1, noteNumber: 72, velocity: 0 },
+                        { deltaTime: 0, type: 'channel', subtype: 'noteOn',  channel: 1, noteNumber: 74, velocity: 127 },
+                        { deltaTime: 64, type: 'channel', subtype: 'noteOff', channel: 1, noteNumber: 74, velocity: 0 },
+                    ],
+                ]
+            });
+        },
+        "no-repeat A,-B,C-D stream": function(){
+            value_of(vurmToMidi.convert({
+                stream : [
+                    {ledger:-2, duration:1},
+                    {ledger:-1, duration:1},
+                    {ledger:0, duration:1},
+                    {ledger:1, duration:1},
+                ],
+            })).should_be({
+                header: {
+                    formatType: 1,
+                    trackCount: 2,
+                    ticksPerBeat: 64 // per crotchet, ie 64*vurm.duration
+                },
+                tracks: [
+                    [
+                        // Meta: title, key, etc.
+                    ],
+                    [
+                        { deltaTime: 0, type: 'channel', subtype: 'noteOn',  channel: 1, noteNumber: 57, velocity: 127 },
+                        { deltaTime: 64, type: 'channel', subtype: 'noteOff', channel: 1, noteNumber: 57, velocity: 0 },
+                        { deltaTime: 0, type: 'channel', subtype: 'noteOn',  channel: 1, noteNumber: 59, velocity: 127 },
+                        { deltaTime: 64, type: 'channel', subtype: 'noteOff', channel: 1, noteNumber: 59, velocity: 0 },
                         { deltaTime: 0, type: 'channel', subtype: 'noteOn',  channel: 1, noteNumber: 60, velocity: 127 },
                         { deltaTime: 64, type: 'channel', subtype: 'noteOff', channel: 1, noteNumber: 60, velocity: 0 },
                         { deltaTime: 0, type: 'channel', subtype: 'noteOn',  channel: 1, noteNumber: 62, velocity: 127 },
@@ -266,12 +355,43 @@ describe('translate vurm to midi', {
                 ]
             });
         },
+        "no-repeat D,-E,F,-G,": function(){
+            value_of(vurmToMidi.convert({
+                stream : [
+                    {ledger:-3, duration:1},
+                    {ledger:-4, duration:1},
+                    {ledger:-5, duration:1},
+                    {ledger:-6, duration:1},
+                ],
+            })).should_be({
+                header: {
+                    formatType: 1,
+                    trackCount: 2,
+                    ticksPerBeat: 64 // per crotchet, ie 64*vurm.duration
+                },
+                tracks: [
+                    [
+                        // Meta: title, key, etc.
+                    ],
+                    [
+                        { deltaTime: 0, type: 'channel', subtype: 'noteOn',  channel: 1, noteNumber: 55, velocity: 127 },
+                        { deltaTime: 64, type: 'channel', subtype: 'noteOff', channel: 1, noteNumber: 55, velocity: 0 },
+                        { deltaTime: 0, type: 'channel', subtype: 'noteOn',  channel: 1, noteNumber: 53, velocity: 127 },
+                        { deltaTime: 64, type: 'channel', subtype: 'noteOff', channel: 1, noteNumber: 53, velocity: 0 },
+                        { deltaTime: 0, type: 'channel', subtype: 'noteOn',  channel: 1, noteNumber: 52, velocity: 127 },
+                        { deltaTime: 64, type: 'channel', subtype: 'noteOff', channel: 1, noteNumber: 52, velocity: 0 },
+                        { deltaTime: 0, type: 'channel', subtype: 'noteOn',  channel: 1, noteNumber: 50, velocity: 127 },
+                        { deltaTime: 64, type: 'channel', subtype: 'noteOff', channel: 1, noteNumber: 50, velocity: 0 },
+                    ],
+                ]
+            });
+        },
         "no-repeat tied barred multi-note stream": function(){
             value_of(vurmToMidi.convert({
                 stream : [
                     { chars:1, tieStart:'(', tieEnd:undefined, bar:undefined, space:undefined },
-                    {note:60, duration:1},
-                    {note:62, duration:1},
+                    {ledger:0, duration:1},
+                    {ledger:1, duration:1},
                     { chars:1, tieStart:undefined, tieEnd:')', bar:undefined, space:undefined },
                     { chars:1, tieStart:undefined, tieEnd:undefined, bar:'|', space:undefined },
                 ],
