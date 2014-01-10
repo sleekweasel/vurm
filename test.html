@@ -60,19 +60,22 @@ describe('translate abc prefix to durations', {
             value_of(reader.convert("Czzzz")).should_be({ chars: 0, dots: undefined, numer: 1, denom: 1 });
         },
         "reads postdots properly": function(){
-            value_of(reader.convert("<<<>Czzzz")).should_be({ chars: 3, dots: '<<<', numer: undefined, denom: undefined });
+            value_of(reader.convert("<<<>Czzzz")).should_be({ chars: 3, dots: '<<<', numer: 1, denom: 1 });
         },
         "reads predots properly": function(){
-            value_of(reader.convert(">><Czzzz")).should_be({ chars: 2, dots: '>>', numer: undefined, denom: undefined });
+            value_of(reader.convert(">><Czzzz")).should_be({ chars: 2, dots: '>>', numer: 1, denom: 1 });
         },
         "reads plain 3 properly": function(){
             value_of(reader.convert("3zzzz")).should_be({ chars: 1, dots: undefined, numer: 3, denom: 1 });
         },
         "defaults / properly": function(){
-            value_of(reader.convert("/zzzz")).should_be({ chars: 1, dots: undefined, numer: 1, denom: 2 });
+            value_of(reader.convert("/<zzzz")).should_be({ chars: 2, dots: '<', numer: 1, denom: 2 });
+        },
+        "defaults // properly": function(){
+            value_of(reader.convert("//zzzz")).should_be({ chars: 2, dots: undefined, numer: 1, denom: 4 });
         },
         "reads 3/ properly": function(){
-            value_of(reader.convert("3/zzzz")).should_be({ chars: 2, dots: undefined, numer: 3, denom: 2 });
+            value_of(reader.convert("3/>zzzz")).should_be({ chars: 3, dots: '>', numer: 3, denom: 2 });
         },
         "reads 3/4 properly": function(){
             value_of(reader.convert("3/4zzzz")).should_be({ chars: 3, dots: undefined, numer: 3, denom: 4 });
@@ -129,12 +132,21 @@ describe('translate abc prefix to chunks', {
                 ]
             });
         },
-        "reads C,<d'xx properlee": function(){
+        "reads C,<<d'xx properlee": function(){
             value_of(reader.convert("C,<<d'xx")).should_be({
                 chars: 6,
                 notes: [
                     {ledger:-7, duration:0.25},
                     {ledger:15, duration:1.75},
+                ]
+            });
+        },
+        "reads C,/<d'xx properlee": function(){
+            value_of(reader.convert("C,/<d'xx")).should_be({
+                chars: 6,
+                notes: [
+                    {ledger:-7, duration:0.25},
+                    {ledger:15, duration:1.5},
                 ]
             });
         },
@@ -147,19 +159,169 @@ describe('translate abc prefix to chunks', {
     }
 );
 
-
-// Aim: something equivalent to ABC, but better for editing.
-var vurm = {
-        header : {
-            key : 0, // -6..+6 FCGDAEB ; (?) informative only
+describe('line reader', {
+        'returns lines': function() {
+            var lines = new LineSource(' 1 \n 2 \\\n 3 ');
+            value_of(lines.see()).should_be('1');
+            value_of(lines.take()).should_be('1');
+            value_of(lines.see()).should_be('2 \\');
+            value_of(lines.take()).should_be('2 \\');
+            value_of(lines.see()).should_be('3');
+            value_of(lines.take()).should_be('3');
         },
-        stream : [
-            {
-                ledger: 0, // Middle C; (?) all sharps and flats are explicit despite key signature.
-                duration: 1, // 1 is a crotchet. Consider 96 as a crotchet for easy triples, or fractions.
-            } // , ...
-        ]
-    };
+        'Strips comments': function() {
+            var lines = new LineSource('1  % comment\n2\\ % comment\\\n3');
+            value_of(lines.see()).should_be('1');
+            value_of(lines.take()).should_be('1');
+            value_of(lines.see()).should_be('2\\');
+            value_of(lines.take()).should_be('2\\');
+            value_of(lines.see()).should_be('3');
+            value_of(lines.take()).should_be('3');
+        },
+    }
+);
+
+describe('Header block reader', {
+        'returns empty for no header': function() {
+            var lines = new LineSource('anything\nelse');
+            var headerBlock = new HeaderBlockParser(lines);
+             value_of(headerBlock.parse()).should_be( null );
+             value_of(lines.see()).should_be('anything');
+        },
+        'returns single header': function() {
+            var lines = new LineSource('T:anything\nelse');
+            var headerBlock = new HeaderBlockParser(lines);
+             value_of(headerBlock.parse()).should_be([
+                 { head: ['T', 'anything'] },
+             ]);
+             value_of(lines.see()).should_be('else');
+        },
+        'Headers ignore backslash continue and non-header': function() {
+            var lines = new LineSource('T:anything\\\nelse');
+            var headerBlock = new HeaderBlockParser(lines);
+            value_of(headerBlock.parse()).should_be([
+                { head: ['T', 'anything\\'] },
+            ]);
+            value_of(lines.see()).should_be('else');
+        },
+        'Headers trim leading and trailing whitespace': function() {
+            var lines = new LineSource('T:   anything   \nelse');
+            var headerBlock = new HeaderBlockParser(lines);
+            value_of(headerBlock.parse()).should_be([
+                { head: ['T', 'anything'] },
+            ]);
+            value_of(lines.see()).should_be('else');
+        },
+        'Headers trim trailing whitespace before comments': function() {
+            var lines = new LineSource('T:    anything    % some comment\nelse');
+            var headerBlock = new HeaderBlockParser(lines);
+            value_of(headerBlock.parse()).should_be([
+                { head: ['T', 'anything'] },
+            ]);
+        },
+        'Headers continue with +: becoming a space': function() {
+            var lines = new LineSource('T: ABCDE% some comment\n+:FGHI ');
+            var headerBlock = new HeaderBlockParser(lines);
+            value_of(headerBlock.parse()).should_be([
+                { head: ['T', 'ABCDE FGHI'] },
+            ]);
+        },
+        'header block ends with blank line': function() {
+            var lines = new LineSource(
+                'T:ABCD\n% some comment\nI: some info\n\nT: tune ident\nEFG');
+            var headerBlock = new HeaderBlockParser(lines);
+            value_of(headerBlock.parse()).should_be([
+                { head: ['T', 'ABCD'] },
+                { head: ['I', 'some info'] },
+            ]);
+            value_of(lines.see()).should_be('EFG');
+        },
+        'File header block ends before X:': function() {
+            var lines = new LineSource(
+                'T:ABCD\\n% some comment\nI: some info\nX: tune ident\nEFG');
+            var headerBlock = new HeaderBlockParser(lines);
+            value_of(headerBlock.parse()).should_be([
+                { head: ['T', 'ABCD'] },
+                { head: ['I', 'some info'] },
+            ]);
+            value_of(lines.see()).should_be('EFG');
+        },
+        'Header block ends with K:': function() {
+            var lines = new LineSource(
+                'T:ABCD\\n% some comment\nI: some info\nK: G\nI: more info\nEFG');
+            var headerBlock = new HeaderBlockParser(lines);
+            value_of(headerBlock.parse()).should_be([
+                { head: ['T', 'ABCD'] },
+                { head: ['I', 'some info'] },
+                { head: ['K', 'G'] },
+            ]);
+            value_of(lines.see()).should_be('I: more info');
+        },
+        'Splices headers inline': function() {
+            var lines = new LineSource(
+                'T:ABCD\\n% some comment\nI: preliner\n%% pragma\n+: postliner\n+:EFG\nACE');
+            var headerBlock = new HeaderBlockParser(lines);
+            value_of(headerBlock.parse()).should_be([
+                { head: [ 'T', 'ABCD', { head: [ 'I', 'preliner' ], }, 'EFG' ] },
+            ]);
+            value_of(lines.see()).should_be('ACE');
+        },
+    }
+);
+
+// Aim: a parsed, but not necessarily lyrics-distibuted version, of an ABC file/fragment
+var vurm = {
+     version: 'XXXX', // %abc-XXXX
+     headers: [ // Any headers until X: or a blank
+         { head: [ 'T', 'Songbook', { head: [ 'I', 'something' ] }, 'title' ] },
+         { head: [ 'O', 'origin ... ', ] },
+     ],
+     tunes: [
+         "Non-X:header-looking plain text between file header and/or tunes",
+         {
+             headers: [ // Any headers from X: until K:
+                 { head: [ 'X', 'n' ] },
+                 { head: [ 'T', 'title', { head: [ 'i', 'something' ] } ] },
+                 { head: [ 'T', 'subtitle' ] },
+                 { head: [ 'other headers' ] },
+                 { head: [ 'K', '0' ] },
+             ],
+             parts: { // Any lines until a blank.
+                 part_1: {
+                     voice_1: [
+                         {
+                             ledger: 0, // Middle C line - accidentals default to key signature.
+                             sharps: 2, // if 'sharps' exists, gives explicit accidence.
+                             duration: 1, // 1 is a crotchet. Consider 96 as a crotchet for easy triples, or fractions.
+                         },
+                         { head: [ 'w', 'sequence of text', { head: [ 'I', 'italic' ] }, 'and %% directives' ] },
+                         { head: [ 'k', '0' ] },
+                     ],
+                 },
+             }
+         },
+     ],
+};
+
+// %abc-2.1
+// T: OPTIONALLY some default headers for the following tunes
+// 
+// X: 1
+// T: title
+// % other headers
+// K: key
+// % no blank line
+// % Your tune here
+// ABCD | EFG2 ||
+// 
+// X: 2
+// T: Title 2
+// % ...
+// K: key
+// % etc.
+// 
+// Or a fragment possibly starting with %abc, the first line of which parses.
+// [K:D]ABC...
 
 describe('translate abc to vurm', {
         'before': function () {
@@ -176,10 +338,10 @@ describe('translate abc to vurm', {
             });
         },
         "reports parse error": function(){
-            value_of(reader.convert("Cx")).should_be({
+            value_of(reader.convert("Cj")).should_be({
                 stream : [
                     {ledger:0, duration:1},
-                    {parseFailAt:"x"}
+                    {parseFailAt:"j"}
                 ]
             });
         },
@@ -258,6 +420,26 @@ describe('translate vurm to midi', {
                     [
                         { deltaTime: 0,  type: 'channel', subtype: 'noteOn',  channel: 1, noteNumber: 60, velocity: 127 },
                         { deltaTime: 64, type: 'channel', subtype: 'noteOff', channel: 1, noteNumber: 60, velocity: 0 },
+                    ],
+                ]
+            });
+        },
+        "One note stream": function(){
+            value_of(vurmToMidi.convert({
+                stream : [ {ledger:0, duration:1, sharps:1} ]
+            })).should_be({
+                header: {
+                    formatType: 1,
+                    trackCount: 2,
+                    ticksPerBeat: 64 // per crotchet, ie 64*vurm.duration
+                },
+                tracks: [
+                    [
+                        // Meta: title, key, etc.
+                    ],
+                    [
+                        { deltaTime: 0,  type: 'channel', subtype: 'noteOn',  channel: 1, noteNumber: 61, velocity: 127 },
+                        { deltaTime: 64, type: 'channel', subtype: 'noteOff', channel: 1, noteNumber: 61, velocity: 0 },
                     ],
                 ]
             });
