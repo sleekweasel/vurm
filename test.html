@@ -178,6 +178,79 @@ describe('line reader', {
             value_of(lines.see()).should_be('3');
             value_of(lines.take()).should_be('3');
         },
+        'Leaves pragmas and blank lines': function() {
+            var lines = new LineSource('%% comment\n\n3');
+            value_of(lines.see()).should_be('%% comment');
+            value_of(lines.take()).should_be('%% comment');
+            value_of(lines.see()).should_be('');
+            value_of(lines.take()).should_be('');
+            value_of(lines.see()).should_be('3');
+            value_of(lines.take()).should_be('3');
+        },
+        'Leaves pragmas': function() {
+            var lines = new LineSource('T:ABCD\n% some comment\n%% pragma\n+:EFG\nACE');
+            value_of(lines.take()).should_be('T:ABCD');
+            value_of(lines.take()).should_be('%% pragma');
+            value_of(lines.take()).should_be('+:EFG');
+            value_of(lines.take()).should_be('ACE');
+        },
+    }
+);
+
+describe('Header line reader', {
+        'returns empty for no header': function() {
+            var lines = new LineSource('anything\nelse');
+            var headerLineParser = new HeaderLineParser(lines);
+             value_of(headerLineParser.parse()).should_be( null );
+             value_of(lines.see()).should_be('anything');
+        },
+        'returns single header': function() {
+            var lines = new LineSource('T:anything\nelse');
+            var headerLineParser = new HeaderLineParser(lines);
+             value_of(headerLineParser.parse()).should_be(
+                 { head: ['T', 'anything'] }
+             );
+             value_of(lines.see()).should_be('else');
+        },
+        'Headers ignore backslash continue and non-header': function() {
+            var lines = new LineSource('T:anything\\\nelse');
+            var headerLineParser = new HeaderLineParser(lines);
+            value_of(headerLineParser.parse()).should_be(
+                { head: ['T', 'anything\\'] }
+            );
+            value_of(lines.see()).should_be('else');
+        },
+        'Headers trim leading and trailing whitespace': function() {
+            var lines = new LineSource('T:   anything   \nelse');
+            var headerLineParser = new HeaderLineParser(lines);
+            value_of(headerLineParser.parse()).should_be(
+                { head: ['T', 'anything'] }
+            );
+            value_of(lines.see()).should_be('else');
+        },
+        'Headers trim trailing whitespace before comments': function() {
+            var lines = new LineSource('T:    anything    % some comment\nelse');
+            var headerLineParser = new HeaderLineParser(lines);
+            value_of(headerLineParser.parse()).should_be(
+                { head: ['T', 'anything'] }
+            );
+        },
+        'Headers continue with +: becoming a space': function() {
+            var lines = new LineSource('T: ABCDE% some comment\n+:FGHI ');
+            var headerLineParser = new HeaderLineParser(lines);
+            value_of(headerLineParser.parse()).should_be(
+                { head: ['T', 'ABCDE', ' FGHI'] }
+            );
+        },
+        'Splices pragmas inline': function() {
+            var lines = new LineSource(
+                'T:ABCD\n% some comment\n%% pragma\n+:EFG\nACE');
+            var headerLineParser = new HeaderLineParser(lines);
+            value_of(headerLineParser.parse()).should_be(
+                { head: [ 'T', 'ABCD', { head: [ 'I', 'pragma' ], }, ' EFG' ] }
+            );
+            value_of(lines.see()).should_be('ACE');
+        },
     }
 );
 
@@ -188,43 +261,13 @@ describe('Header block reader', {
              value_of(headerBlock.parse()).should_be( null );
              value_of(lines.see()).should_be('anything');
         },
-        'returns single header': function() {
+        'returns random header': function() {
             var lines = new LineSource('T:anything\nelse');
             var headerBlock = new HeaderBlockParser(lines);
              value_of(headerBlock.parse()).should_be([
                  { head: ['T', 'anything'] },
              ]);
              value_of(lines.see()).should_be('else');
-        },
-        'Headers ignore backslash continue and non-header': function() {
-            var lines = new LineSource('T:anything\\\nelse');
-            var headerBlock = new HeaderBlockParser(lines);
-            value_of(headerBlock.parse()).should_be([
-                { head: ['T', 'anything\\'] },
-            ]);
-            value_of(lines.see()).should_be('else');
-        },
-        'Headers trim leading and trailing whitespace': function() {
-            var lines = new LineSource('T:   anything   \nelse');
-            var headerBlock = new HeaderBlockParser(lines);
-            value_of(headerBlock.parse()).should_be([
-                { head: ['T', 'anything'] },
-            ]);
-            value_of(lines.see()).should_be('else');
-        },
-        'Headers trim trailing whitespace before comments': function() {
-            var lines = new LineSource('T:    anything    % some comment\nelse');
-            var headerBlock = new HeaderBlockParser(lines);
-            value_of(headerBlock.parse()).should_be([
-                { head: ['T', 'anything'] },
-            ]);
-        },
-        'Headers continue with +: becoming a space': function() {
-            var lines = new LineSource('T: ABCDE% some comment\n+:FGHI ');
-            var headerBlock = new HeaderBlockParser(lines);
-            value_of(headerBlock.parse()).should_be([
-                { head: ['T', 'ABCDE FGHI'] },
-            ]);
         },
         'header block ends with blank line': function() {
             var lines = new LineSource(
@@ -234,21 +277,21 @@ describe('Header block reader', {
                 { head: ['T', 'ABCD'] },
                 { head: ['I', 'some info'] },
             ]);
-            value_of(lines.see()).should_be('EFG');
+            value_of(lines.see()).should_be('');
         },
         'File header block ends before X:': function() {
             var lines = new LineSource(
-                'T:ABCD\\n% some comment\nI: some info\nX: tune ident\nEFG');
+                'T:ABCD\n% some comment\nI: some info\nX: tune ident\nEFG');
             var headerBlock = new HeaderBlockParser(lines);
             value_of(headerBlock.parse()).should_be([
                 { head: ['T', 'ABCD'] },
                 { head: ['I', 'some info'] },
             ]);
-            value_of(lines.see()).should_be('EFG');
+            value_of(lines.see()).should_be('X: tune ident');
         },
-        'Header block ends with K:': function() {
+        'Tune header block ends with K: leaves following header': function() {
             var lines = new LineSource(
-                'T:ABCD\\n% some comment\nI: some info\nK: G\nI: more info\nEFG');
+                'T:ABCD\n% some comment\nI: some info\nK: G\nI: more info\nEFG');
             var headerBlock = new HeaderBlockParser(lines);
             value_of(headerBlock.parse()).should_be([
                 { head: ['T', 'ABCD'] },
@@ -257,14 +300,16 @@ describe('Header block reader', {
             ]);
             value_of(lines.see()).should_be('I: more info');
         },
-        'Splices headers inline': function() {
+        'Tune header block ends with K: leaves following tune': function() {
             var lines = new LineSource(
-                'T:ABCD\\n% some comment\nI: preliner\n%% pragma\n+: postliner\n+:EFG\nACE');
+                'T:ABCD\n% some comment\nI: some info\nK: G\nEFG');
             var headerBlock = new HeaderBlockParser(lines);
             value_of(headerBlock.parse()).should_be([
-                { head: [ 'T', 'ABCD', { head: [ 'I', 'preliner' ], }, 'EFG' ] },
+                { head: ['T', 'ABCD'] },
+                { head: ['I', 'some info'] },
+                { head: ['K', 'G'] },
             ]);
-            value_of(lines.see()).should_be('ACE');
+            value_of(lines.see()).should_be('EFG');
         },
     }
 );

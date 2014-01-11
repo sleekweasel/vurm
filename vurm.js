@@ -169,52 +169,73 @@ abcReader = new AbcReader();
 
 function LineSource(abc) {
     this.lines = abc.split("\n");
+    this.line = 0;
     for (var n = this.lines.length - 1; n >= 0; --n) {
-        var r = /^\s*((([^\\%]|\\.)*?)(\s*?(\\))?)(\s*?(%.*)?)$/.exec(this.lines[n]);
-        if (r[1] == '') {
-            delete this.lines[n];
-        }
-        this.lines[n] = r[1];
+        var r = /^\s*((%%)?(([^\\%]|\\.)*?)(\s*?(\\))?)(\s*?(%.*)?)$/.exec(this.lines[n]);
+        this.lines[n] = (r[7] && !r[1]) ? '%' : r[1];
     }
+    this.state = function() {
+        var see = this.see();
+        return "[:"
+            + this.lines.slice(0, this.line).join("><")
+            + '-' + this.line + "=" + see + '-'
+            + this.lines.slice(this.line).join("><")
+            + ":]";
+    };
+    this.skipDels = function() {
+        while ( this.lines.length > this.line && this.lines[this.line] == '%') {
+            ++this.line;
+        };
+    };
     this.see = function() {
-        return this.lines[0];
-    }
+        this.skipDels();
+        return this.lines[this.line];
+    };
     this.take = function() {
-        return this.lines.shift();
+        this.skipDels();
+        var line = this.lines[this.line ++];
+        return line;
     }
 }
 
 function HeaderLineParser(lineSource) {
     this.source = lineSource;
-    this.parse = function() {
-        var prep = /^%%(.*)$/.exec(line);
+    this.preparse = function (line) {
+        var prep = /^%%\s*(.*?)\s*$/.exec(line);
         if (prep) {
-            this.source.take();
-            return [ { head: [ 'I', prep[1] ] } ];
+            return { head: [ 'I', prep[1] ] };
         }
-        var r = /^(\w):\s*(.*?)\s*(%.*)?$/.exec(line);
+    };
+    this.matchHeaderLine = function (line) {
+        return /^(\w|\+):\s*(.*?)\s*(%.*)?$/.exec(line);
+    };
+    this.parse = function() {
+        var line = this.source.see();
+        var p = this.preparse(line);
+        if (p) { return p; }
+        var r = this.matchHeaderLine(line);
         if (r) {
             var headData = [ r[1], r[2] ];
             this.source.take();
-            return [ { head: headData } ];
-        }
-        return null;
-    }
-}
-
-function HeaderParser(lineSource) {
-    this.source = lineSource;
-    this.parse = function() {
-        var prep = /^%%(.*)$/.exec(line);
-        if (prep) {
-            return [ { head: [ 'I', prep[1] ] } ];
-        }
-        var r = /^(\w):\s*(.*?)\s*(%.*)?$/.exec(line);
-        if (r) {
-            var headData = [ r[1], r[2] ];
-            this.source.take();
-//             while (
-            return [ { head: headData } ];
+            do {
+                line = this.source.see();
+                p = this.preparse(line);
+                if (p) {
+                    headData.push(p);
+                    this.source.take();
+                }
+                r = this.matchHeaderLine(line);
+                if (r) {
+                    if (r[1] == '+') {
+                        headData.push(' ' + r[2]);
+                        this.source.take();
+                    }
+                    else {
+                        r = undefined;
+                    }
+                }
+            } while (p || r);
+            return { head: headData };
         }
         return null;
     }
@@ -222,10 +243,28 @@ function HeaderParser(lineSource) {
 
 // Returns [ { head: [ 'x', 'values', 'of', 'the', 'header' ] }, ... ]
 function HeaderBlockParser(lineSource) {
-    this.source = lineSource;
+    this.lineSource = lineSource;
+    this.source = new HeaderLineParser(lineSource);
     this.parse = function() {
-        var line = this.source.see();
-        return null;
+        var header = this.source.parse();
+        if (!header) { return header; }
+        var heads = [];
+        do {
+            heads.push(header);
+            var backup = this.lineSource.line;
+            header = this.source.parse();
+            if (header) {
+                if (header.head[0] == 'X') {
+                    header = '';
+                    this.lineSource.line = backup;
+                }
+                else if (header.head[0] == 'K') {
+                    heads.push(header);
+                    header = '';
+                }
+            }
+        } while (header);
+        return heads;
     }
 }
 
