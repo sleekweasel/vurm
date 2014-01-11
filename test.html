@@ -368,31 +368,35 @@ var vurm = {
 // Or a fragment possibly starting with %abc, the first line of which parses.
 // [K:D]ABC...
 
+function stream(s) {
+    return {parts:{"":{"":s}}};
+}
+
 describe('translate abc to vurm', {
         'before': function () {
             reader = new AbcReader();
         },
         "reads C properly": function(){
-            value_of(reader.convert("C")).should_be({
-                stream : [ {ledger:0, duration:1} ]
-            });
+            value_of(reader.convert("C")).should_be(
+                stream([ {ledger:0, duration:1} ])
+            );
         },
         "reads C, properly": function(){
-            value_of(reader.convert("C,")).should_be({
-                stream : [ {ledger:-7, duration:1} ]
-            });
+            value_of(reader.convert("C,")).should_be(
+                stream ( [ {ledger:-7, duration:1} ] )
+            );
         },
         "reports parse error": function(){
-            value_of(reader.convert("Cj")).should_be({
-                stream : [
+            value_of(reader.convert("Cj")).should_be(
+                stream ( [
                     {ledger:0, duration:1},
                     {parseFailAt:"j"}
-                ]
-            });
+                ] )
+            );
         },
         "reads a(Bc')|  D, properly": function(){
-            value_of(reader.convert("a(Bc')|  D,")).should_be({
-                stream : [
+            value_of(reader.convert("a(Bc')|  D,")).should_be(
+                stream ( [
                     {ledger:12, duration:1},
                     { chars:1, tieStart:'(', tieEnd:undefined, bar:undefined, space:undefined },
                     {ledger:6, duration:1},
@@ -401,16 +405,16 @@ describe('translate abc to vurm', {
                     { chars:1, tieStart:undefined, tieEnd:undefined, bar:'|', space:undefined },
                     { chars:2, tieStart:undefined, tieEnd:undefined, bar:undefined, space:'  ' },
                     {ledger:-6, duration:1}
-                ]
-            });
+                ] )
+            );
         },
         "reads a/B' properly": function(){
-            value_of(reader.convert("a/B")).should_be({
-                stream : [
+            value_of(reader.convert("a/B")).should_be(
+                stream ( [
                     {ledger:12, duration:0.5},
                     {ledger:6, duration:1},
-                ]
-            });
+                ] )
+            );
         },
     }
 );
@@ -450,9 +454,9 @@ describe('translate vurm to midi', {
             vurmToMidi = new VurmToMidi();
         },
         "One note stream": function(){
-            value_of(vurmToMidi.convert({
-                stream : [ {ledger:0, duration:1} ]
-            })).should_be({
+            value_of(vurmToMidi.convert(
+                stream ( [ {ledger:0, duration:1} ] )
+            )).should_be({
                 header: {
                     formatType: 1,
                     trackCount: 2,
@@ -470,9 +474,9 @@ describe('translate vurm to midi', {
             });
         },
         "One note stream": function(){
-            value_of(vurmToMidi.convert({
-                stream : [ {ledger:0, duration:1, sharps:1} ]
-            })).should_be({
+            value_of(vurmToMidi.convert(
+                stream ( [ {ledger:0, duration:1, sharps:1} ] )
+            )).should_be({
                 header: {
                     formatType: 1,
                     trackCount: 2,
@@ -490,14 +494,14 @@ describe('translate vurm to midi', {
             });
         },
         "no-repeat D-EF-G stream": function(){
-            value_of(vurmToMidi.convert({
-                stream : [
+            value_of(vurmToMidi.convert(
+                stream ( [
                     {ledger:1, duration:1},
                     {ledger:2, duration:1},
                     {ledger:3, duration:1},
                     {ledger:4, duration:1},
-                ],
-            })).should_be({
+                ] )
+            )).should_be({
                 header: {
                     formatType: 1,
                     trackCount: 2,
@@ -521,14 +525,14 @@ describe('translate vurm to midi', {
             });
         },
         "no-repeat A-Bc-d stream": function(){
-            value_of(vurmToMidi.convert({
-                stream : [
+            value_of(vurmToMidi.convert(
+                stream ( [
                     {ledger:5, duration:1},
                     {ledger:6, duration:1},
                     {ledger:7, duration:1},
                     {ledger:8, duration:1},
-                ],
-            })).should_be({
+                ] )
+            )).should_be({
                 header: {
                     formatType: 1,
                     trackCount: 2,
@@ -552,14 +556,14 @@ describe('translate vurm to midi', {
             });
         },
         "no-repeat A,-B,C-D stream": function(){
-            value_of(vurmToMidi.convert({
-                stream : [
+            value_of(vurmToMidi.convert(
+                stream ( [
                     {ledger:-2, duration:1},
                     {ledger:-1, duration:1},
                     {ledger:0, duration:1},
                     {ledger:1, duration:1},
-                ],
-            })).should_be({
+                ] )
+            )).should_be({
                 header: {
                     formatType: 1,
                     trackCount: 2,
@@ -583,14 +587,14 @@ describe('translate vurm to midi', {
             });
         },
         "no-repeat D,-E,F,-G,": function(){
-            value_of(vurmToMidi.convert({
-                stream : [
+            value_of(vurmToMidi.convert(
+                stream ( [
                     {ledger:-3, duration:1},
                     {ledger:-4, duration:1},
                     {ledger:-5, duration:1},
                     {ledger:-6, duration:1},
-                ],
-            })).should_be({
+                ] )
+            )).should_be({
                 header: {
                     formatType: 1,
                     trackCount: 2,
@@ -614,15 +618,15 @@ describe('translate vurm to midi', {
             });
         },
         "no-repeat tied barred multi-note stream": function(){
-            value_of(vurmToMidi.convert({
-                stream : [
+            value_of(vurmToMidi.convert(
+                stream ( [
                     { chars:1, tieStart:'(', tieEnd:undefined, bar:undefined, space:undefined },
                     {ledger:0, duration:1},
                     {ledger:1, duration:1},
                     { chars:1, tieStart:undefined, tieEnd:')', bar:undefined, space:undefined },
                     { chars:1, tieStart:undefined, tieEnd:undefined, bar:'|', space:undefined },
-                ],
-            })).should_be({
+                ] )
+            )).should_be({
                 header: {
                     formatType: 1,
                     trackCount: 2,

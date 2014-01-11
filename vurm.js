@@ -269,7 +269,7 @@ function HeaderBlockParser(lineSource) {
 }
 
 VurmToMidi = function() {
-    this.convert = function (vurm, tune) {
+    this.convert = function (tune, vurm) {
         voice = [];
         var s = tune.parts[""][""];
         for (var i = 0; i < s.length; ++i) {
