@@ -9,95 +9,95 @@
 <script type="text/javascript" src="vurm.js"></script>
 <script type="text/javascript">// <![CDATA[
 
-describe('translate abc prefix to notes', {
+describe('translate abc pitch/rest prefix to notes', {
         'before': function () {
-            reader = new AbcNoteReader();
+            tokeniser = new AbcPitchTokeniser();
         },
         "reads rest properly": function(){
-            value_of(reader.convert("zzzz")).should_be({ chars: 1 });
+            value_of(tokeniser.convert("zzzz")).should_be({ chars: 1 });
         },
         "reads middle C properly": function(){
-            value_of(reader.convert("Czzzz")).should_be({ chars: 1, ledger: 0 });
+            value_of(tokeniser.convert("Czzzz")).should_be({ chars: 1, ledger: 0 });
         },
         "reads middle C# properly": function(){
-            value_of(reader.convert("^Czzzz")).should_be({ chars: 2, ledger: 0, sharps: 1 });
+            value_of(tokeniser.convert("^Czzzz")).should_be({ chars: 2, ledger: 0, sharps: 1 });
         },
         "reads middle C## properly": function(){
-            value_of(reader.convert("^^Czzzz")).should_be({ chars: 3, ledger: 0, sharps: 2 });
+            value_of(tokeniser.convert("^^Czzzz")).should_be({ chars: 3, ledger: 0, sharps: 2 });
         },
         "reads middle Gb properly": function(){
-            value_of(reader.convert("_Gzzz")).should_be({ chars: 2, ledger: 4, sharps: -1 });
+            value_of(tokeniser.convert("_Gzzz")).should_be({ chars: 2, ledger: 4, sharps: -1 });
         },
         "reads middle Gbb properly": function(){
-            value_of(reader.convert("__Gezzz")).should_be({ chars: 3, ledger: 4, sharps: -2 });
+            value_of(tokeniser.convert("__Gezzz")).should_be({ chars: 3, ledger: 4, sharps: -2 });
         },
         "reads upper c properly": function(){
-            value_of(reader.convert("czzzz")).should_be({ chars: 1, ledger: 7 });
+            value_of(tokeniser.convert("czzzz")).should_be({ chars: 1, ledger: 7 });
         },
         "reads upper C' properly": function(){
-            value_of(reader.convert("C'zzzz")).should_be({ chars: 2, ledger: 7 });
+            value_of(tokeniser.convert("C'zzzz")).should_be({ chars: 2, ledger: 7 });
         },
         "reads C',' properly": function(){
-            value_of(reader.convert("C,''zzzz")).should_be({ chars: 4, ledger: 7 });
+            value_of(tokeniser.convert("C,''zzzz")).should_be({ chars: 4, ledger: 7 });
         },
         "reads E,, properly": function(){
-            value_of(reader.convert("E,,zzzz")).should_be({ chars: 3, ledger: 2 - 14 });
+            value_of(tokeniser.convert("E,,zzzz")).should_be({ chars: 3, ledger: 2 - 14 });
         },
         "reads A' properly": function(){
-            value_of(reader.convert("A'zzzz")).should_be({ chars: 2, ledger: 5 + 7});
+            value_of(tokeniser.convert("A'zzzz")).should_be({ chars: 2, ledger: 5 + 7});
         },
         "ignores ' properly": function(){
-            value_of(reader.convert("'zzzz")).should_be(null);
+            value_of(tokeniser.convert("'zzzz")).should_be(null);
         },
     }
 );
 
 describe('translate abc prefix to durations', {
         'before': function () {
-            reader = new AbcDurationReader();
+            tokeniser = new AbcDurationTokeniser();
         },
         "defaults empty properly": function(){
-            value_of(reader.convert("Czzzz")).should_be({ chars: 0, dots: undefined, numer: 1, denom: 1 });
+            value_of(tokeniser.convert("Czzzz")).should_be({ chars: 0, dots: undefined, numer: 1, denom: 1 });
         },
         "reads postdots properly": function(){
-            value_of(reader.convert("<<<>Czzzz")).should_be({ chars: 3, dots: '<<<', numer: 1, denom: 1 });
+            value_of(tokeniser.convert("<<<>Czzzz")).should_be({ chars: 3, dots: '<<<', numer: 1, denom: 1 });
         },
         "reads predots properly": function(){
-            value_of(reader.convert(">><Czzzz")).should_be({ chars: 2, dots: '>>', numer: 1, denom: 1 });
+            value_of(tokeniser.convert(">><Czzzz")).should_be({ chars: 2, dots: '>>', numer: 1, denom: 1 });
         },
         "reads plain 3 properly": function(){
-            value_of(reader.convert("3zzzz")).should_be({ chars: 1, dots: undefined, numer: 3, denom: 1 });
+            value_of(tokeniser.convert("3zzzz")).should_be({ chars: 1, dots: undefined, numer: 3, denom: 1 });
         },
         "defaults / properly": function(){
-            value_of(reader.convert("/<zzzz")).should_be({ chars: 2, dots: '<', numer: 1, denom: 2 });
+            value_of(tokeniser.convert("/<zzzz")).should_be({ chars: 2, dots: '<', numer: 1, denom: 2 });
         },
         "defaults // properly": function(){
-            value_of(reader.convert("//zzzz")).should_be({ chars: 2, dots: undefined, numer: 1, denom: 4 });
+            value_of(tokeniser.convert("//zzzz")).should_be({ chars: 2, dots: undefined, numer: 1, denom: 4 });
         },
         "reads 3/ properly": function(){
-            value_of(reader.convert("3/>zzzz")).should_be({ chars: 3, dots: '>', numer: 3, denom: 2 });
+            value_of(tokeniser.convert("3/>zzzz")).should_be({ chars: 3, dots: '>', numer: 3, denom: 2 });
         },
         "reads 3/4 properly": function(){
-            value_of(reader.convert("3/4zzzz")).should_be({ chars: 3, dots: undefined, numer: 3, denom: 4 });
+            value_of(tokeniser.convert("3/4zzzz")).should_be({ chars: 3, dots: undefined, numer: 3, denom: 4 });
         },
     }
 );
 
 describe('translate abc punctuation to vurm', {
         'before': function () {
-            reader = new AbcPunctuationReader();
+            tokeniser = new AbcPunctuationTokeniser();
         },
         "reads (xx properly": function(){
-            value_of(reader.convert("(zzzz")).should_be({ chars: 1, tieStart: '(' });
+            value_of(tokeniser.convert("(zzzz")).should_be({ chars: 1, tieStart: '(' });
         },
         "reads )xx properly": function(){
-            value_of(reader.convert(")zzzz")).should_be({ chars: 1, tieEnd: ')' });
+            value_of(tokeniser.convert(")zzzz")).should_be({ chars: 1, tieEnd: ')' });
         },
         "reads |xx properly": function(){
-            value_of(reader.convert("|zzzz")).should_be({ chars: 1, bar: '|' });
+            value_of(tokeniser.convert("|zzzz")).should_be({ chars: 1, bar: '|' });
         },
         "reads space properly": function(){
-            value_of(reader.convert("  zzzz")).should_be({ chars: 2, space: '  ' });
+            value_of(tokeniser.convert("  zzzz")).should_be({ chars: 2, space: '  ' });
         },
     }
 );
@@ -197,7 +197,7 @@ describe('line reader', {
     }
 );
 
-describe('Header line reader', {
+describe('Header line reader - consumes lines for a single logical header', {
         'returns empty for no header': function() {
             var lines = new LineSource('anything\nelse');
             var headerLineParser = new HeaderLineParser(lines);
@@ -254,7 +254,7 @@ describe('Header line reader', {
     }
 );
 
-describe('Header block reader', {
+describe('Initial header block reader', {
         'returns empty for no header': function() {
             var lines = new LineSource('anything\nelse');
             var headerBlock = new HeaderBlockParser(lines);
@@ -314,6 +314,51 @@ describe('Header block reader', {
     }
 );
 
+describe('Tune line parser', {
+        'returns empty for blank line': function() {
+            var lines = new LineSource('\n');
+            var tuneLineParser = new TuneLineParser(lines);
+            value_of(tuneLineParser.parse()).should_be( [ ] );
+            value_of(lines.see()).should_be('');
+        },
+        'returns a lone header': function() {
+            var lines = new LineSource('M: whatever\n%% you have\n+: had\nabce');
+            var tuneLineParser = new TuneLineParser(lines);
+             value_of(tuneLineParser.parse()).should_be( [
+                { head: [ 'M',
+                            'whatever',
+                            { head: [ 'I', 'you have' ] },
+                            ' had' ] }
+             ] );
+             value_of(lines.see()).should_be('abce');
+        },
+        'returns first line if uncontinued': function() {
+            var lines = new LineSource('ab\ncd');
+            var tuneLineParser = new TuneLineParser(lines);
+             value_of(tuneLineParser.parse()).should_be(
+                [
+                    [{ ledger: 12, duration: 1 }],
+                    [{ ledger: 13, duration: 1 }]
+                ]
+             );
+             value_of(lines.see()).should_be('cd');
+        },
+        'returns infix if continued': function() {
+            var lines = new LineSource("ab\\ % comment\nM:2\nc'd'\ncd");
+            var tuneLineParser = new TuneLineParser(lines);
+             value_of(tuneLineParser.parse()).should_be(
+                [
+                    [{ ledger: 12, duration: 1 }],
+                    [{ ledger: 13, duration: 1 }],
+                    { head: ['M', '2' ] },
+                    [{ ledger: 14, duration: 1 }],
+                    [{ ledger: 15, duration: 1 }],
+                ]
+             );
+             value_of(lines.see()).should_be('cd');
+        },
+    }
+);
 // Aim: a parsed, but not necessarily lyrics-distibuted version, of an ABC file/fragment
 var vurm = {
      version: 'XXXX', // %abc-XXXX
@@ -414,6 +459,52 @@ describe('translate abc to vurm', {
                     {ledger:12, duration:0.5},
                     {ledger:6, duration:1},
                 ] )
+            );
+        },
+        "reads header with tunes parts and voices": function(){
+            value_of(reader.convert(
+                'T: Some tests\n'
+                + '\n'
+                + 'X:1\nT:Test 1\nK: G\nP:A\nV:1\nABCD\n[V:2]DEFG[P:B][V:1]ACEG[V:2]BDFA'
+                )).should_be(
+                stream ({ 
+                    headers: { T: [[ 'Some tests' ]] },
+                    tunes: [
+                        {
+                            headers: { X: [[1]], T: [['Test 1']], K: [[G]] },
+                            parts: {
+                                A: {    
+                                    1: [
+                                        {ledger:5, duration:1},
+                                        {ledger:6, duration:1}, 
+                                        {ledger:0, duration:1}, 
+                                        {ledger:1, duration:1}, 
+                                    ],
+                                    2: [
+                                        {ledger:2, duration:1},
+                                        {ledger:3, duration:1}, 
+                                        {ledger:4, duration:1}, 
+                                        {ledger:5, duration:1}, 
+                                    ]
+                                },
+                                B: {
+                                    1: [
+                                        {ledger:5, duration:1},
+                                        {ledger:0, duration:1}, 
+                                        {ledger:2, duration:1}, 
+                                        {ledger:4, duration:1}, 
+                                    ],
+                                    2: [
+                                        {ledger:6, duration:1},
+                                        {ledger:1, duration:1}, 
+                                        {ledger:3, duration:1}, 
+                                        {ledger:5, duration:1}, 
+                                    ]
+                                },
+                            }
+                        }
+                    ]
+                })
             );
         },
     }

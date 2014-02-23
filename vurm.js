@@ -19,8 +19,9 @@
 //      - meta [ K|M|G|L|Q|T|X ]
 
 
-function AbcNoteReader () {
+function AbcPitchTokeniser () {
     this.convert = function(abc) {
+    // Reads a single element of pitch
         var r = /^(([zxZ])|([_=^]*)([a-gA-G])([',]*))/.exec(abc);
         if (!r) {
             return null;
@@ -48,10 +49,11 @@ function AbcNoteReader () {
     }
 }
 
-abcNoteReader = new AbcNoteReader();
+abcPitchTokeniser = new AbcPitchTokeniser();
 
-function AbcDurationReader() {
+function AbcDurationTokeniser() {
     this.convert = function(abc) {
+    // Reads a single element of duration (for after some pitch)
         var d = /^(([0-9]*)(\/+([0-9]*))?(<+|>+)?`*)/.exec(abc);
         if (!d) {
             return null;
@@ -70,10 +72,11 @@ function AbcDurationReader() {
     }
 }
 
-abcDurationReader = new AbcDurationReader();
+abcDurationTokeniser = new AbcDurationTokeniser();
 
-function AbcPunctuationReader() {
+function AbcPunctuationTokeniser() {
     this.convert = function(abc) {
+    // Pre, inter, and post punctuation.
         var d = /^((\()|(\))|(\|)|( +))/.exec(abc);
         if (!d) {
             return null;
@@ -96,18 +99,20 @@ function AbcPunctuationReader() {
     }
 }
 
-abcPunctuationReader = new AbcPunctuationReader();
+abcPunctuationTokeniser = new AbcPunctuationTokeniser();
 
 function AbcChunkReader() {
     this.convert = function(abc) {
-        var p = abcNoteReader.convert(abc);
+    // Read a smallest complete chunk into notes, like a>b.
+    // Later, handle recursive [abc]->[abc] and similar.
+        var p = abcPitchTokeniser.convert(abc);
         if (!p) {
-            return abcPunctuationReader.convert(abc);
+            return abcPunctuationTokeniser.convert(abc);
         }
         var chunk = { chars: p.chars, notes: [] };
         abc = abc.slice(p.chars);
         delete p.chars;
-        var d = abcDurationReader.convert(abc);
+        var d = abcDurationTokeniser.convert(abc);
         if (!d) {
             return null;
         }
@@ -115,7 +120,7 @@ function AbcChunkReader() {
         chunk.chars += d.chars;
         p.duration = (1*d.numer) / (1*d.denom);
         if (d.dots) {
-            var p2 = abcNoteReader.convert(abc);
+            var p2 = abcPitchTokeniser.convert(abc);
             if (!p2) {
                 return null;
             }
@@ -123,7 +128,7 @@ function AbcChunkReader() {
             chunk.chars += p2.chars;
             delete p2.chars;
 
-            var d2  = abcDurationReader.convert(abc);
+            var d2  = abcDurationTokeniser.convert(abc);
             if (!d2) {
                 return null;
             }
@@ -151,6 +156,7 @@ function AbcChunkReader() {
 abcChunkReader = new AbcChunkReader();
 
 function LineSource(abc) {
+    // Strips %% commands and post \ comments and trailing spaces.
     this.lines = abc.split("\n");
     this.line = 0;
     for (var n = this.lines.length - 1; n >= 0; --n) {
@@ -158,6 +164,7 @@ function LineSource(abc) {
         this.lines[n] = (r[7] && !r[1]) ? '%' : r[1];
     }
     this.state = function() {
+    // Show the parsing status
         var see = this.see();
         return "[:"
             + this.lines.slice(0, this.line).join("><")
@@ -166,15 +173,18 @@ function LineSource(abc) {
             + ":]";
     };
     this.skipDels = function() {
+    // Skip any lines marked 'deleted'.
         while ( this.lines.length > this.line && this.lines[this.line] == '%') {
             ++this.line;
         };
     };
     this.see = function() {
+    // Look at the current line
         this.skipDels();
         return this.lines[this.line];
     };
     this.take = function() {
+    // Move on from the current line
         this.skipDels();
         var line = this.lines[this.line ++];
         return line;
@@ -182,14 +192,17 @@ function LineSource(abc) {
 }
 
 function HeaderLineParser(lineSource) {
+// Cope with header lines having %% preprocessor comments
     this.source = lineSource;
     this.preparse = function (line) {
+    // Turn '%% preprocessor' directives into the I: form.
         var prep = /^%%\s*(.*?)\s*$/.exec(line);
         if (prep) {
             return { head: [ 'I', prep[1] ] };
         }
     };
     this.matchHeaderLine = function (line) {
+    // Recognise X: lkajlsjfasdf header lines
         return /^(\w|\+):\s*(.*?)\s*(%.*)?$/.exec(line);
     };
     this.parse = function() {
@@ -248,6 +261,46 @@ function HeaderBlockParser(lineSource) {
             }
         } while (header);
         return heads;
+    }
+}
+
+function TuneLineParser(lineSource) {
+// Returns a free header line, or a tune line with embedded headers
+    this.source = lineSource;
+    this.parse = function() {
+        tuneLine = [];
+        headerLineParser = new HeaderLineParser(lineSource);
+        lineHeader = headerLineParser.parse();
+        if (lineHeader != null) {
+            return [ lineHeader ];
+        }
+        abcChunkReader = new AbcChunkReader();
+        var line = lineSource.see();
+        do {
+            var chunk = abcChunkReader.convert(line);
+            if (chunk != null) {
+                tuneLine.push(chunk.notes);
+                line = line.slice(chunk.chars);
+            }
+            else {
+                if (line == '\\') {
+                    lineSource.take();
+                    do {
+                        lineHeader = headerLineParser.parse();
+                        if (lineHeader != null) {
+                            tuneLine.push(lineHeader);
+                        }
+                    }
+                    while (lineHeader != null)
+                    line = lineSource.see();
+                }
+                else {
+                    tuneLine.push({error: line});
+                }
+            }
+        } while (line.length > 0);
+        lineSource.take();
+        return tuneLine;
     }
 }
 
