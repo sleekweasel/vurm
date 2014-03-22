@@ -1,0 +1,68 @@
+
+
+body {
+    background-color: #cfc;
+    font-family: sans-serif;
+    text-align: center;
+}
+
+tr {
+    height: 2em;
+}
+
+td.black {
+    background-color: black;
+    text-align: center;
+    color: white
+}
+
+td.white {
+    border: 1px;
+    border-style: solid solid none solid;
+    background-color: white;
+    text-align: center;
+}
+
+th.white {
+    border: 1px;
+    border-style: none solid solid solid;
+    background-color: white;
+    text-align: center;
+}
+
+table {
+    border-collapse: collapse;
+    table-layout: fixed;
+    width: 100%;
+}
+tt {
+    color: red; font-size: 14pt;
+}
+
+div {
+    width: 300px;
+    border: 1px solid;
+    padding: 1em;
+    border-radius: 3em 1em;
+    position: absolute;
+}
+
+div.player {
+    background: #ffc;
+}
+
+div.theory {
+    background: #fdc;
+}
+
+div.boring {
+    background: #dfc;
+}
+
+span.button {
+    border: 1px solid;
+    padding: .5ex;
+    margin: .5ex;
+    border-radius: .5em;
+    background: #ccf;
+}

@@ -1,0 +1,243 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Share your melodies!</title>
+ <!-- midi.js package -->
+ <script src="./MIDI.js/js/MIDI/AudioDetect.js" type="text/javascript"></script>
+ <script src="./MIDI.js/js/MIDI/LoadPlugin.js" type="text/javascript"></script>
+ <script src="./MIDI.js/js/MIDI/Plugin.js" type="text/javascript"></script>
+ <script src="./MIDI.js/js/MIDI/Player.js" type="text/javascript"></script>
+ <script src="./MIDI.js/js/MusicTheory/Synesthesia.js" type="text/javascript"></script>
+ <script src="./MIDI.js/js/Widgets/Loader.js" type="text/javascript"></script>
+ <script src="./MIDI.js/js/Window/Event.js" type="text/javascript"></script>
+ <script src="./MIDI.js/js/Window/DOMLoader.XMLHttp.js" type="text/javascript"></script>
+ <script src="./MIDI.js/js/Window/DOMLoader.script.js" type="text/javascript"></script>
+ <!-- jasmid package -->
+ <script src="./MIDI.js/inc/jasmid/stream.js"></script>
+ <script src="./MIDI.js/inc/jasmid/midifile.js"></script>
+ <script src="./MIDI.js/inc/jasmid/replayer.js"></script>
+ <!-- extras -->
+ <script src="./MIDI.js/inc/Base64.js" type="text/javascript"></script>
+ <script src="./MIDI.js/inc/base64binary.js" type="text/javascript"></script>
+ <script language="javascript" src="keyboard-flow.js"></script>
+ <script language="javascript" src="keyboard-play.js"></script>
+<link rel="stylesheet" href="keyboard-style.css"/>
+ </head>
+  <body>
+
+<p>Tune in your head to ask your friends about? Want to jot a melody down for later?</p>
+
+<p>Vurm is free to use through the magic of banner advertising.</p>
+
+    <span id='ceiling'></span>
+    <div class="player">
+    <p>Press the keys below (on your screen or keyboard) to work out your tune,
+    then share the results.</p>
+
+    <table>
+        
+        <tr>
+            <td class="white" colspan="1"></td>
+            <td class="black" colspan="2">e</td>
+            <td class="white" colspan="1"></td>
+            <td class="black" colspan="2">r</td>
+            <td class="white" colspan="1"></td>
+
+            <td class="white" colspan="1"></td>
+            <td class="black" colspan="2">y</td>
+            <td class="white" colspan="1"></td>
+            <td class="black" colspan="2">u</td>
+            <td class="white" colspan="1"></td>
+            <td class="black" colspan="2">i</td>
+            <td class="white" colspan="1"></td>
+
+            <td class="white" colspan="1"></td>
+            <td class="black" colspan="2">E</td>
+            <td class="white" colspan="1"></td>
+            <td class="black" colspan="2">R</td>
+            <td class="white" colspan="1"></td>
+
+            <td class="white" colspan="1"></td>
+            <td class="black" colspan="2">Y</td>
+            <td class="white" colspan="1"></td>
+            <td class="black" colspan="2">U</td>
+            <td class="white" colspan="1"></td>
+            <td class="black" colspan="2">I</td>
+            <td class="white" colspan="1"></td>
+        </tr>
+        <tr>
+            <th class="white" colspan="2">s</td>
+            <th class="white" colspan="3">d</td>
+            <th class="white" colspan="2"><u>f</u></td>
+
+            <th class="white" colspan="2">g</td>
+            <th class="white" colspan="3">h</td>
+            <th class="white" colspan="3"><u>j</u></td>
+            <th class="white" colspan="2">k</td>
+
+            <th class="white" colspan="2">S</td>
+            <th class="white" colspan="3">D</td>
+            <th class="white" colspan="2"><u>F</u></td>
+
+            <th class="white" colspan="2">G</td>
+            <th class="white" colspan="3">H</td>
+            <th class="white" colspan="3"><u>J</u></td>
+            <th class="white" colspan="2">K</td>
+        </tr>
+    </table>
+
+    <p/>
+
+    </div>
+
+    <br>
+
+    <div class="player">
+    <p>Your tune is right here for you to edit; each letter represents a
+    note.</p>
+
+    <textarea id='tune' style='resize: vertical;' cols='30' rows='5'></textarea>
+
+<!-- script>
+    function thing() {
+        this.start = 10;
+        this.tune = document.getElementById("tune");
+        this.test = function (mx) {
+            this.start =mx;
+            for (i = this.start; i > 0; - -i ) {
+                tune.innerHTML+="-"+i;
+            }
+        }
+    };
+    t = new thing();
+    t.test(20);
+</script -->
+    <p/>
+
+    <span class='button' onclick='tune = document.getElementById("tune"); tune.value=""'>
+        Clear: <a href="#"><tt>X</tt></a>
+    </span>
+    <span class='button' onclick='MIDI.Player.stop(); onQwerChanged()'>
+        Play: <a href="#"><tt>&gt;</tt></a>
+    </span>
+    <span class='button' onclick='MIDI.Player.stop();'>
+        Stop: <a href="#"><tt>[]</tt></a>
+    </span>
+    
+    </div>
+
+    <br>
+
+    <div class="player">
+    <p>Share or bookmark this page once it plays your tune properly:
+    <a href='https://twitter.com.XXX/home?status=http://wix.com%23v1=a+a%20b-c'>Tweet here</a> and
+    <a href='https://plus.google.com.XXX/share?url=http://wix.com%23v1=a+a%20b-c'>Google+ here</a>
+    work easily; Facebook needs you to <a href='#'>copy this link</a>.</p>
+    </div>
+
+    <br>
+
+    <div class="theory">
+
+    </p>Space out notes by typing <tt>/</tt> slashes between them, one for each
+    additional beat: <tt>e//g</tt> plays an <tt>e</tt> note followed by a
+    <tt>g</tt> note, two beats later. Use this both for long notes and for
+    musical pauses.</p>
+
+    </div>
+
+    <br>
+
+    <div class="theory">
+
+    </p>Squash notes together by typing one or more <tt>\</tt> backslashes
+    after a letter, so <tt>e\g</tt> plays a half-beat or 'quaver' <tt>e</tt>
+    followed by a normal <tt>g</tt>, whereas <tt>e\\g</tt> plays a shorter
+    quarter-beat or 'semiquaver' <tt>e</tt>, then the normal length
+    <tt>g</tt>.</p>
+
+    </div>
+
+    <br>
+
+    <div class="theory">
+
+    <p>If you need a 'dotted' note, use <tt>e//\</tt> which is a three beat
+    note, shrunk to half length. A double dot would be <tt>e//////\\</tt>, if
+    you really need that.</p>
+
+    </div>
+
+    <br>
+
+    <div class="theory">
+
+    <p>You can change the speed of the WHOLE tune by putting
+    several <tt>/</tt> and <tt>\</tt> tweaks at the VERY start of
+    your piece (before any notes).</p>
+
+    </div>
+
+    <br>
+
+    <div class="boring">
+
+    <p>You need no account with us, and we make no claim on your intellectual
+    property.</p>
+
+    </div>
+
+    <br>
+
+    <div class="boring">
+
+    <p>This page's music format is designed for simplicity and is not intended
+    to compete with ABC format! We have started work on a full ABC editor.</p>
+
+    </div>
+
+    <br>
+
+    <div class="boring">
+
+    <p>Vurm derives from 'Ohrvurm' - a German word referring to a tune that
+    catches your ear and plays endlessly in your mind. In English, we say
+    'earworm'. Still very annoying!</p>
+
+    </div>
+
+    <br>
+
+    <div class="boring">
+
+    <p>The Vurm site is copyright 2014 Tim Baverstock, all rights reserved for
+    now.</p>
+
+    <p>MIDI.js is used under its <a href="MIDI.js/LICENSE.txt">MIT license</a>
+     and is hereby published.</p>
+
+    </div>
+<script language="javascript">
+
+    window.setInterval(tick, 20);
+    t = document.getElementById('tune');
+    t.onmousemove = function(e) { reflow(); }
+
+</script>
+<script type="text/javascript">
+
+
+window.onload = function () {
+	MIDI.loadPlugin({
+		soundfontUrl: "./MIDI.js/soundfont/",
+		instruments: [ "acoustic_grand_piano" ],
+		callback: function() {
+            onceLoaded()
+		}
+	});
+};
+
+</script>
+</body>
+</html>
