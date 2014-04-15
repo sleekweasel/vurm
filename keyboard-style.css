@@ -6,9 +6,12 @@ body {
     text-align: center;
 }
 
-tr {
+tr.keyboard {
     height: 2em;
 }
+
+th.white:hover { background: gold; }
+td.black:hover { background: darkgold; }
 
 td.black {
     background-color: black;
@@ -30,11 +33,13 @@ th.white {
     text-align: center;
 }
 
-table {
+
+table.keyboard {
     border-collapse: collapse;
     table-layout: fixed;
     width: 100%;
 }
+
 tt {
     color: red; font-size: 14pt;
 }
@@ -59,6 +64,7 @@ div.boring {
     background: #dfc;
 }
 
+span.button:hover { background: gold; }
 span.button {
     border: 1px solid;
     padding: .5ex;
@@ -66,3 +72,4 @@ span.button {
     border-radius: .5em;
     background: #ccf;
 }
+

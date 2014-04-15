@@ -12,7 +12,7 @@
  <script src="./MIDI.js/js/Widgets/Loader.js" type="text/javascript"></script>
  <script src="./MIDI.js/js/Window/Event.js" type="text/javascript"></script>
  <script src="./MIDI.js/js/Window/DOMLoader.XMLHttp.js" type="text/javascript"></script>
- <script src="./MIDI.js/js/Window/DOMLoader.script.js" type="text/javascript"></script>
+ <!-- script src="./MIDI.js/js/Window/DOMLoader.script.js" type="text/javascript"></script -->
  <!-- jasmid package -->
  <script src="./MIDI.js/inc/jasmid/stream.js"></script>
  <script src="./MIDI.js/inc/jasmid/midifile.js"></script>
@@ -35,9 +35,9 @@
     <p>Press the keys below (on your screen or keyboard) to work out your tune,
     then share the results.</p>
 
-    <table>
+    <table class="keyboard">
         
-        <tr>
+        <tr class="keyboard">
             <td class="white" colspan="1"></td>
             <td class="black" colspan="2">e</td>
             <td class="white" colspan="1"></td>
@@ -66,7 +66,7 @@
             <td class="black" colspan="2">I</td>
             <td class="white" colspan="1"></td>
         </tr>
-        <tr>
+        <tr class="keyboard">
             <th class="white" colspan="2">s</td>
             <th class="white" colspan="3">d</td>
             <th class="white" colspan="2"><u>f</u></td>
@@ -96,34 +96,31 @@
     <div class="player">
     <p>Your tune is right here for you to edit; each letter represents a
     note.</p>
+<script>
+  function numbersOnly(oToCheckField, oKeyEvent) {
+    return oKeyEvent.charCode === 0 || /\d/.test();
+  }
+</script>
 
-    <textarea id='tune' style='resize: vertical;' cols='30' rows='5'></textarea>
+    <textarea
+        id='tune'
+        onkeypress="return playImmediate(String.fromCharCode(event.charCode));"
+        style='resize: vertical;'
+        cols='30' rows='5'
+        autofocus
+        onblur='this.focus()'></textarea>
 
-<!-- script>
-    function thing() {
-        this.start = 10;
-        this.tune = document.getElementById("tune");
-        this.test = function (mx) {
-            this.start =mx;
-            for (i = this.start; i > 0; - -i ) {
-                tune.innerHTML+="-"+i;
-            }
-        }
-    };
-    t = new thing();
-    t.test(20);
-</script -->
     <p/>
 
-    <span class='button' onclick='tune = document.getElementById("tune"); tune.value=""'>
-        Clear: <a href="#"><tt>X</tt></a>
-    </span>
-    <span class='button' onclick='MIDI.Player.stop(); onQwerChanged()'>
-        Play: <a href="#"><tt>&gt;</tt></a>
-    </span>
-    <span class='button' onclick='MIDI.Player.stop();'>
-        Stop: <a href="#"><tt>[]</tt></a>
-    </span>
+    <span class='button'
+        onclick='tune = document.getElementById("tune"); tune.value=""'
+        >Clear: <tt>X</tt></span>
+    <span class='button'
+        onclick='MIDI.Player.stop(); onQwerChanged()'
+        >Play: <tt>&gt;</tt></span>
+    <span class='button'
+        onclick='MIDI.Player.stop();'
+        >Stop: <tt>[]</tt></span>
     
     </div>
 
@@ -181,6 +178,23 @@
 
     <br>
 
+    <div class="theory">
+
+    <p>If you're copying from sheet music, these <a
+    href="Treble_clef.svg">treble</a> and <a href="Bass_clef.svg">bass</a> clef
+    files might be helpful:</p>
+    <table align="center"><tr>
+        <td width="50%"><a href="Treble_clef.svg"><img class="stave" src="Treble_clef.svg" width="80%"
+        border='2'></a></td>
+        <td widht="50%"><a href="Bass_clef.svg"><img class="stave" src="Bass_clef.svg" width="80%"
+        border='2'></a></td>
+        </tr></table>
+    <p>Remember to move <b>up</b> to a black note if a line is marked
+    <tt>#</tt> and <b>down</b> if it's marked <tt>b</tt>.</p>
+    </div>
+
+    <br>
+
     <div class="boring">
 
     <p>You need no account with us, and we make no claim on your intellectual
@@ -226,7 +240,6 @@
 
 </script>
 <script type="text/javascript">
-
 
 window.onload = function () {
 	MIDI.loadPlugin({

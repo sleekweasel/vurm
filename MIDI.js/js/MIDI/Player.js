@@ -102,6 +102,16 @@ root.loadMidiFile = function() { // reads midi into javascript array of events
 	root.endTime = getLength();
 };
 
+root.setMidiData = function (midiData, callback) {
+	root.stop();
+	root.currentMidiData = midiData;
+	root.replayer = new Replayer(midiData, root.timeWarp);
+	root.data = root.replayer.getData();
+	root.endTime = getLength();
+	if (callback) callback(data);
+	return;
+};
+
 root.loadFile = function (file, callback) {
 	root.stop();
 	if (file.indexOf("base64,") !== -1) {

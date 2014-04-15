@@ -59,6 +59,12 @@ function onQwerChanged() {
     MIDI.Player.resume();
 }
 
+function playImmediate(ch) {
+    var midi = qwerToMidi.convert(ch);
+    MIDI.Player.setMidiData(midi);
+    MIDI.Player.resume();
+}
+
 function onceLoaded() {
     MIDI.programChange(0, 0);
     document.getElementById('tune').textContent = window.location.hash.slice(1);
