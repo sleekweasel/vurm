@@ -73,7 +73,9 @@ function playImmediate(ch) {
 
 function onceLoaded() {
     MIDI.programChange(0, 0);
-    document.getElementById('tune').textContent = window.location.hash.slice(1);
+    hash = window.location.hash.slice(1);
+    hash = hash.replace(/%5[Cc]/, "\\");
+    document.getElementById('tune').textContent = hash;
     onQwerChanged();
 }
 
