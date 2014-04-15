@@ -25,7 +25,7 @@ function QwerToMidi() {
         var beat = this.duration();
         voice = [];
         while (this.ix < this.tune.length) {
-            var semitones = "awsedrfgyhujAWSEDRFGYHUJKOLP:".indexOf(this.tune.charAt(this.ix));
+            var semitones = "sedrfgyhujikSEDRFGYHUJIKLP:".indexOf(this.tune.charAt(this.ix));
             var midi = semitones + 60; // = MIDI.pianoKeyOffset;
             ++this.ix;
             var t = this.duration() * beat * 64;
