@@ -68,7 +68,7 @@ function playImmediate(ch) {
     var midi = qwerToMidi.convert(ch);
     MIDI.Player.setMidiData(midi);
     MIDI.Player.resume();
-    return midi.tracks[1].length > 0;
+    return midi.tracks[1].length > 0 || ("\\/".indexOf(ch) >= 0) ;
 }
 
 function onceLoaded() {
