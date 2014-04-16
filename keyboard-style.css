@@ -10,8 +10,9 @@ tr.keyboard {
     height: 2em;
 }
 
+th.whitehk:hover { background: gold; }
 th.white:hover { background: gold; }
-td.black:hover { background: darkgold; }
+td.black:hover { background-color: darkgoldenrod; }
 
 td.black {
     background-color: black;
@@ -22,7 +23,8 @@ td.black {
 td.white {
     border: 1px;
     border-style: solid solid none solid;
-    background-color: white;
+    border-color: black;
+    color: transparent;
     text-align: center;
 }
 
@@ -33,10 +35,21 @@ th.white {
     text-align: center;
 }
 
+th.whitehk {
+    border: 1px;
+    border-style: none solid solid solid;
+    background-color: white;
+    text-align: center;
+    text-decoration: underline;
+}
+
 
 table.keyboard {
+    border: 1px;
     border-collapse: collapse;
+    border-style: solid solid solid solid;
     table-layout: fixed;
+    background: white;
     width: 100%;
 }
 

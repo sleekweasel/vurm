@@ -68,7 +68,21 @@ function playImmediate(ch) {
     var midi = qwerToMidi.convert(ch);
     MIDI.Player.setMidiData(midi);
     MIDI.Player.resume();
-    return midi.tracks[1].length > 0 || ("\\/".indexOf(ch) >= 0) ;
+    return midi.tracks[1].length > 0 || ("\\/\n".indexOf(ch) >= 0) ;
+}
+
+function keyboardClick(e) {
+    var target = e.target || e.srcElement;
+    var insert = playImmediate(target.innerHTML);
+    if (insert) {
+        var tune = document.getElementById('tune');
+        var csr = tune.selectionStart;
+        var old = tune.value;
+        var next = tune.value.substr(0,csr) + target.innerHTML.substr(0,1) + tune.value.substr(csr, tune.value.length);
+        tune.value = next;
+        tune.selectionStart = csr+1;
+        tune.selectionEnd = csr+1;
+    }
 }
 
 function onceLoaded() {
