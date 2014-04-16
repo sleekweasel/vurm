@@ -30,7 +30,9 @@
 
 <p>Vurm is free to use through the magic of banner advertising.</p>
 
-<p>Vurm works best with the <a href="https://www.google.com/intl/en/chrome/browser/">Chrome browser</a>'s inbuilt music extension.</p>
+<p>Vurm works best with <a
+href="https://www.google.com/intl/en/chrome/browser/">Chrome</a>'s inbuilt
+music extension, but is good on Firefox, and copes on Dolphin.</p>
 
     <span id='ceiling'></span>
     <div class="player">
@@ -101,7 +103,7 @@
 
     <textarea
         id='tune'
-        onkeypress="return playImmediate(String.fromCharCode(event.charCode));"
+        onkeypress="return playAndOrValidateEvent(event);"
         style='resize: vertical;'
         cols='30' rows='5'
         autofocus

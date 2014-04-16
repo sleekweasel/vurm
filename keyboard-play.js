@@ -68,7 +68,16 @@ function playImmediate(ch) {
     var midi = qwerToMidi.convert(ch);
     MIDI.Player.setMidiData(midi);
     MIDI.Player.resume();
-    return midi.tracks[1].length > 0 || ("\\/\n".indexOf(ch) >= 0) ;
+    return midi.tracks[1].length > 0 || ("\\/\n\r\b".indexOf(ch) >= 0) ;
+}
+
+function playAndOrValidateEvent(event) {
+    var code = event.charCode;
+    if (code == 0) {
+        return true;
+    }
+    var ch = String.fromCharCode(code);
+    return playImmediate(ch);
 }
 
 function keyboardClick(e) {
