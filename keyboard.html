@@ -98,11 +98,6 @@
     <div class="player">
     <p>Your tune is right here for you to edit; each letter represents a
     note.</p>
-<script>
-  function numbersOnly(oToCheckField, oKeyEvent) {
-    return oKeyEvent.charCode === 0 || /\d/.test();
-  }
-</script>
 
     <textarea
         id='tune'
@@ -110,7 +105,7 @@
         style='resize: vertical;'
         cols='30' rows='5'
         autofocus
-        onblur='this.focus()'></textarea>
+        onblur='this.focus(); window.location.hash=document.getElementById("tune").value;'></textarea>
 
     <p/>
 

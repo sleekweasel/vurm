@@ -82,6 +82,7 @@ function keyboardClick(e) {
         tune.value = next;
         tune.selectionStart = csr+1;
         tune.selectionEnd = csr+1;
+        window.location.hash=tune.value;
     }
 }
 
