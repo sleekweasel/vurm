@@ -25,10 +25,10 @@ function QwerToMidi() {
         var beat = this.duration();
         voice = [];
         while (this.ix < this.tune.length) {
-            var semitones = "sedrfgyhujikSEDRFGYHUJIKLP:".indexOf(this.tune.charAt(this.ix));
+            var semitones = "qasedrfgyhujikSEDRFGYHUJIKLP:".indexOf(this.tune.charAt(this.ix));
             ++this.ix;
             if (semitones >= 0) {
-                var midi = semitones + 36; // = MIDI.pianoKeyOffset;
+                var midi = semitones + 60; // = MIDI.pianoKeyOffset;
                 var t = this.duration() * beat * 64;
                 voice.push({deltaTime: 0, type: "channel", subtype: 'noteOn', channel:1, noteNumber: midi, velocity:127});
                 voice.push({deltaTime: t, type: "channel", subtype: 'noteOff', channel:1, noteNumber: midi, velocity:0});
