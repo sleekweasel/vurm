@@ -146,7 +146,7 @@ music extension, but is good on Firefox, and copes on Dolphin.</p>
   })();
 </script>
 
-    <button onclick='location.href="https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(location.href)'>Share on Facebook</button>
+    <button onclick='l = location.href.replace(/\\/g, "~"); location.href="https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(l)'>Share on Facebook</button>
 
     </p>
     </div>
