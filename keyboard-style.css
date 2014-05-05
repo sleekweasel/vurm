@@ -57,7 +57,7 @@ tt {
     color: red; font-size: 14pt;
 }
 
-div {
+.lobe {
     width: 300px;
     border: 1px solid;
     padding: 1em;
@@ -65,15 +65,15 @@ div {
     position: absolute;
 }
 
-div.player {
+.player {
     background: #ffc;
 }
 
-div.theory {
+.theory {
     background: #fdc;
 }
 
-div.boring {
+.boring {
     background: #dfc;
 }
 
