@@ -98,6 +98,7 @@ function keyboardClick(e) {
 function onceLoaded() {
     MIDI.programChange(0, 0);
     hash = decodeURIComponent(window.location.hash.slice(1));
+    hash = hash.replace("~", "\\");
     document.getElementById('tune').textContent = hash;
     onQwerChanged();
 }
