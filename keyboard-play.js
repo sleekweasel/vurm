@@ -99,7 +99,9 @@ function onceLoaded() {
     MIDI.programChange(0, 0);
     hash = decodeURIComponent(window.location.hash.slice(1));
     hash = hash.replace(/~/g, "\\");
-    document.getElementById('tune').textContent = hash;
+    tune = document.getElementById('tune');
+    tune.disabled = false;
+    tune.textContent = hash;
     onQwerChanged();
 }
 
