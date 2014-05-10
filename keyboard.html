@@ -108,7 +108,7 @@ music extension, but is good on Firefox, and copes on Dolphin.</p>
         cols='30' rows='5'
         autofocus
         disabled
-        onblur='this.focus(); window.location.hash=document.getElementById("tune").value;'>
+        onblur='this.focus(); putTuneInHash();'>
 
 
         ... loading ...
@@ -136,11 +136,12 @@ music extension, but is good on Firefox, and copes on Dolphin.</p>
     <p>Share or bookmark this page once it plays your tune properly:
 
 <div align="center">
-    <a href="https://twitter.com/share" class="twitter-share-button" data-text="I have a tune in my head!" data-hashtags="vurm" data-dnt="true">Tweet</a>
+
+    <a href="https://twitter.com/share" class="twitter-share-button" data-text="I have a tune in my head!" data-dnt="true">Tweet</a>
 <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
 
 
-    <button onclick='l = location.href.replace(/\\/g, "~"); window.open("https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(l), "fbshare","height=200,width=500")'>Share on Facebook</button>
+    <button onclick='window.open("https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(location.href), "fbshare","height=200,width=500")'>Share on Facebook</button>
 
 <!-- Place this tag where you want the share button to render. -->
 <div class="g-plus" align="center" data-action="share" data-height="24"></div>
@@ -212,9 +213,8 @@ music extension, but is good on Firefox, and copes on Dolphin.</p>
 
     <div class="lobe theory">
 
-    <p>If you need more notes, the lower keys z-m work, and shift makes them
-    lower. Also, press [this] to shuffle your turn higher and [this] to shuffle
-    it lower.</p>
+    <p>An experimental feature: type <tt>*</tt> to start a second or third
+    voice. Also, you can press 'return' to put new lines into the tune.</p>
 
     </div>
 
