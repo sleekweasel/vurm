@@ -23,21 +23,27 @@ function QwerToMidi() {
         this.tune = tune;
         this.ix = 0;
         var beat = this.duration();
+        var oct = 0;
         trax = [ [ /* meta */ ] ];
         voice = [];
         while (this.ix < this.tune.length) {
-            var semitones = "*qasedrfgyhujikSEDRFGYHUJIKLP:".indexOf(this.tune.charAt(this.ix)) - 1;
-            ++this.ix;
+            var ch = this.tune.charAt(this.ix++);
+            var semitones = "qasedrfgyhujikSEDRFGYHUJIKLP:".indexOf(ch);
             if (semitones >= 0) {
-                var midi = semitones + 60; // = MIDI.pianoKeyOffset;
+                var midi = semitones + oct * 12 + 60; // = MIDI.pianoKeyOffset;
                 var t = this.duration() * beat * 64;
                 voice.push({deltaTime: 0, type: "channel", subtype: 'noteOn', channel: trax.length, noteNumber: midi, velocity:127});
                 voice.push({deltaTime: t, type: "channel", subtype: 'noteOff', channel: trax.length, noteNumber: midi, velocity:0});
             }
             else {
-                if (semitones == -1) {
+                var tpos = "-*+".indexOf(ch) - 1;
+                if (tpos == 0) {
                     trax.push(voice);
                     voice = [];
+                    oct = 0;
+                }
+                if (tpos >= -1) {
+                    oct += tpos;
                 }
             }
         }
@@ -68,7 +74,7 @@ function playImmediate(ch) {
     var midi = qwerToMidi.convert(ch);
     MIDI.Player.setMidiData(midi);
     MIDI.Player.resume();
-    return midi.tracks[1].length > 0 || ("\\/*\n\r\b".indexOf(ch) >= 0) ;
+    return midi.tracks[1].length > 0 || ("\\/*\n\r\b+-".indexOf(ch) >= 0) ;
 }
 
 function playAndOrValidateEvent(event) {
@@ -104,6 +110,7 @@ function putTuneInHash() {
     data = encodeURIComponent(data);
     data = data.replace(/%2F/g, "/");
     data = data.replace(/%5E/g, "_");
+    data = data.replace(/%2B/g, "+");
     window.location.hash = data;
 }
 
