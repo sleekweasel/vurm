@@ -105,20 +105,27 @@ function keyboardClick(e) {
 function putTuneInHash() {
     var tune = document.getElementById("tune");
     var data = tune.value;
-    data = data.replace(/\\/g, "~");
-    data = data.replace(/\s/g, "_");
-    data = encodeURIComponent(data);
-    data = data.replace(/%2F/g, "/");
-    data = data.replace(/%5E/g, "_");
-    data = data.replace(/%2B/g, "+");
-    window.location.hash = data;
+//    data = data.replace(/\\/g, "~");
+//    data = data.replace(/\s/g, "_");
+//    data = encodeURIComponent(data);
+//    data = data.replace(/%2F/g, "/");
+//    data = data.replace(/%5E/g, "_");
+//    data = data.replace(/%2B/g, "+");
+    data = LZString.compressToBase64(data);
+    window.location.hash = "v1" + data;
 }
 
 function putHashInTune() {
     var data = window.location.hash.slice(1);
-    data = decodeURIComponent(data);
-    data = data.replace(/~/g, "\\");
-    data = data.replace(/_/g, "\n");
+    
+    if (data.lastIndexOf("v1", 0) >= 0) {
+        data = LZString.decompressFromBase64(data.slice(2));
+    }
+    else {
+        data = decodeURIComponent(data);
+        data = data.replace(/~/g, "\\");
+        data = data.replace(/_/g, "\n");
+    }
     var tune = document.getElementById("tune");
     tune.value = data;
     tune.textContent = tune.value;
