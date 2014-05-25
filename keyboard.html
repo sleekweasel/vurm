@@ -36,6 +36,7 @@ href="https://www.google.com/intl/en/chrome/browser/">Chrome</a>'s inbuilt
 music extension, but copes on Firefox, Safari, and Dolphin. IE seems to be
 broken.</p>
 
+<div id="debug">-</div>
     <span id='ceiling'></span>
     <div class="lobe player">
     <p>Press the keys below (on your screen or keyboard) to work out your tune,
@@ -97,8 +98,6 @@ broken.</p>
 
     </div>
 
-    <br>
-
     <div class="lobe player">
     <p>Your tune is right here for you to edit; each letter represents a
     note.</p>
@@ -132,8 +131,6 @@ broken.</p>
     
     </div>
 
-    <br>
-
     <div class="lobe player">
     <p>Share or bookmark this page once it plays your tune properly. These buttons might work after a refresh:
 
@@ -163,8 +160,6 @@ broken.</p>
     </p>
     </div>
 
-    <br>
-
     <div class="lobe theory">
 
     </p>Space out notes by typing <tt>/</tt> slashes between them, each one
@@ -173,8 +168,6 @@ broken.</p>
     musical pauses - they both sound similar enough.</p>
 
     </div>
-
-    <br>
 
     <div class="lobe theory">
 
@@ -187,8 +180,6 @@ broken.</p>
 
     </div>
 
-    <br>
-
     <div class="lobe theory">
 
     <p>If you need a 'dotted' note, use <tt>e\/</tt> which is half a beat plus
@@ -200,8 +191,6 @@ broken.</p>
 
     </div>
 
-    <br>
-
     <div class="lobe theory">
 
     <p>You can change the speed of the WHOLE tune by putting several <tt>/</tt>
@@ -211,8 +200,6 @@ broken.</p>
 
     </div>
 
-    <br>
-
     <div class="lobe theory">
 
     <p>Advanced/Experimental features:<br>Type <tt>*</tt> to start a new
@@ -221,8 +208,6 @@ broken.</p>
     'return' to put clarifying new lines into the tune field.</p>
 
     </div>
-
-    <br>
 
     <div class="lobe theory">
 
@@ -239,16 +224,12 @@ broken.</p>
     <tt>#</tt> and <b>down</b> if it's marked <tt>b</tt>.</p>
     </div>
 
-    <br>
-
     <div class="lobe boring">
 
     <p>You need no account with us, and we make no claim on your intellectual
     property.</p>
 
     </div>
-
-    <br>
 
     <div class="lobe boring">
 
@@ -257,7 +238,6 @@ broken.</p>
 
     </div>
 
-    <br>
 
     <div class="lobe boring">
 
@@ -266,8 +246,6 @@ broken.</p>
     'earworm'. Still very annoying!</p>
 
     </div>
-
-    <br>
 
     <div class="lobe boring">
 
@@ -280,7 +258,9 @@ broken.</p>
     </div>
 <script language="javascript">
 
-    window.setInterval(tick, 20);
+    window.setInterval(reflow, 3000);
+    window.onresize = function(){window.setTimeout(tick, 500)};
+    window.setTimeout(tick, 200);
     t = document.getElementById('tune');
     t.onmousemove = function(e) { reflow(); }
 
