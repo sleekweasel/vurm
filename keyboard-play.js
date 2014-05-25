@@ -19,13 +19,24 @@ function QwerToMidi() {
         return len;
     };
 
+    this.eatInt = function () {
+        var chan = "";
+        while ("1234567890".indexOf(this.tune.charAt(this.ix)) >= 0) {
+            chan += this.tune.charAt(this.ix);
+            ++this.ix;
+        }
+        return parseInt(chan);
+    }
+
     this.convert = function (tune) {
         this.tune = tune;
         this.ix = 0;
         var beat = this.duration();
         var oct = 0;
-        trax = [ [ /* meta */ ] ];
-        voice = [];
+        var trax = [ [ /* meta */ ] ];
+        var voice = [];
+        voice.oct = oct;
+        var pushvoice = 1;
         while (this.ix < this.tune.length) {
             var ch = this.tune.charAt(this.ix++);
             var semitones = "qasedrfgyhujikSEDRFGYHUJIKLP:".indexOf(ch);
@@ -38,16 +49,29 @@ function QwerToMidi() {
             else {
                 var tpos = "-*+".indexOf(ch) - 1;
                 if (tpos == 0) {
-                    trax.push(voice);
-                    voice = [];
-                    oct = 0;
+                    if (pushvoice) {
+                        voice.oct = oct;
+                        trax.push(voice);
+                    }
+                    var chan = this.eatInt();
+                    if (isFinite(chan) && trax[chan]) {
+                        voice = trax[chan];
+                        oct = voice.oct;
+                        pushvoice = 0;
+                    } else {
+                        voice = [];
+                        oct = 0;
+                        pushvoice = 1;
+                    }
                 }
                 if (tpos >= -1) {
                     oct += tpos;
                 }
             }
         }
-        trax.push(voice);
+        if (pushvoice) {
+            trax.push(voice);
+        }
         return {
             header: {
                 formatType: 1,
@@ -74,19 +98,30 @@ function playImmediate(ch) {
     var midi = qwerToMidi.convert(ch);
     MIDI.Player.setMidiData(midi);
     MIDI.Player.resume();
-    return midi.tracks[1].length > 0 || ("\\/*\n\r\b+-".indexOf(ch) >= 0) ;
+    return midi.tracks[1].length > 0;
 }
 
+function validateSpecial(ch, ta) {
+    var digit = "1234567890".indexOf(ch);
+    if (digit >= 0) {
+        // Only allow digits immediately after *
+        return (/\*[0-9]*$/.test(ta.value.substr(0,ta.selectionStart)));
+    }
+    return  ("\\/*\n\r\b+- ".indexOf(ch) >= 0);
+}
+
+// Fancy textarea editing.
 function playAndOrValidateEvent(event) {
     var code = event.charCode;
     if (code == 0) {
         return true;
     }
     var ch = String.fromCharCode(code);
-    return playImmediate(ch);
+    return validateSpecial(ch, event.target || event.srcElement) || playImmediate(ch);
 }
 
-function keyboardClick(e) {
+// on-screen piano keyboard handling.
+function pianoClick(e) {
     var target = e.target || e.srcElement;
     var insert = playImmediate(target.innerHTML);
     if (insert) {
