@@ -15,7 +15,7 @@ var d=document.getElementById('debug');
 	var children = document.getElementsByClassName("lobe");
 	var colWidth = parseInt(children[0].offsetWidth) + ygap;
 	var displWidth = window.innerWidth;
-	var colCount = Math.min(Math.max(Math.floor(displWidth / colWidth), 1), 4);
+	var colCount = Math.min(Math.max(Math.floor(displWidth / colWidth), 1), 3);
 //d.innerHTML = "cw=" + colWidth + " dw=" + displWidth + " cc=" + colCount;
 	var gutter = displWidth - colWidth * colCount;
 	gutter = gutter / (colCount + 1);
