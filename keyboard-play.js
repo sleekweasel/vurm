@@ -5,18 +5,25 @@
 function QwerToMidi() {
     this.duration = function () {
         var len = 1;
+        var next = 1;
         while (this.tune.length > this.ix) {
             ch = this.tune.charAt(this.ix);
             if (ch == '/') {
                 len++;
             } else if (ch == '\\') {
                 len/=2;
+            } else if (ch == '>') {
+                next/=2;
+                len=2-next;
+            } else if (ch == '<') {
+                len/=2;
+                next=2-len;
             } else {
                 break;
             }
             ++this.ix;
         }
-        return len;
+        return {len:len, next:next};
     };
 
     this.eatInt = function () {
@@ -31,18 +38,23 @@ function QwerToMidi() {
     this.convert = function (tune) {
         this.tune = tune;
         this.ix = 0;
-        var beat = this.duration();
+        var duration = this.duration();
+        var beat = duration.len;
+        var next = 1;
         var oct = 0;
         var trax = [ [ /* meta */ ] ];
         var voice = [];
         voice.oct = oct;
+        voice.next = next;
         var pushvoice = 1;
         while (this.ix < this.tune.length) {
             var ch = this.tune.charAt(this.ix++);
             var semitones = "qasedrfgyhujikSEDRFGYHUJIKLP:".indexOf(ch);
             if (semitones >= 0) {
                 var midi = semitones + oct * 12 + 60; // = MIDI.pianoKeyOffset;
-                var t = this.duration() * beat * 64;
+                var duration = this.duration();
+                var t = duration.len * next * beat * 64;
+                next = duration.next;
                 voice.push({deltaTime: 0, type: "channel", subtype: 'noteOn', channel: trax.length, noteNumber: midi, velocity:127});
                 voice.push({deltaTime: t, type: "channel", subtype: 'noteOff', channel: trax.length, noteNumber: midi, velocity:0});
             }
@@ -51,16 +63,19 @@ function QwerToMidi() {
                 if (tpos == 0) {
                     if (pushvoice) {
                         voice.oct = oct;
+                        voice.next = next;
                         trax.push(voice);
                     }
                     var chan = this.eatInt();
                     if (isFinite(chan) && trax[chan]) {
                         voice = trax[chan];
                         oct = voice.oct;
+                        next = voice.next;
                         pushvoice = 0;
                     } else {
                         voice = [];
                         oct = 0;
+                        next = 1;
                         pushvoice = 1;
                     }
                 }
@@ -107,7 +122,7 @@ function validateSpecial(ch, ta) {
         // Only allow digits immediately after *
         return (/\*[0-9]*$/.test(ta.value.substr(0,ta.selectionStart)));
     }
-    return  ("\\/*\n\r\b+- ".indexOf(ch) >= 0);
+    return  ("\\/<>*\n\r\b+- ".indexOf(ch) >= 0);
 }
 
 // Fancy textarea editing.
