@@ -66,15 +66,19 @@ tt {
 }
 
 .player {
-    background: #ffc;
+    background: #ffb;
 }
 
 .theory {
-    background: #fdc;
+    background: #feb;
+}
+
+.advanced {
+    background: #fbb;
 }
 
 .boring {
-    background: #dfc;
+    background: #bfb;
 }
 
 span.button:hover { background: gold; }
