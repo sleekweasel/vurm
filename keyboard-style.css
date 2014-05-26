@@ -57,6 +57,18 @@ tt {
     color: red; font-size: 14pt;
 }
 
+.bloop {
+    max-width: 1200px;
+    border: 1px solid;
+    padding: 1em;
+    margin: 0px auto 20px auto;
+    border-radius: 3em 1em;
+}
+
+#tune {
+    width: 90%;
+}
+
 .lobe {
     width: 300px;
     border: 1px solid;

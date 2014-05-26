@@ -37,7 +37,42 @@ music extension, but copes on Firefox, Safari, and Dolphin. IE seems to be
 broken.</p>
 
 <div id="debug">-</div>
+
+    <div class="bloop player">
+    <p>Your tune appears right here for you to edit; each letter represents a
+    note, symbols change their interpretation.</p>
+
+    <textarea
+        id='tune'
+        onkeypress="return playAndOrValidateEvent(event);"
+        style='resize: both;'
+        rows='5'
+        autofocus
+        disabled
+        onblur='this.focus(); putTuneInHash();'>
+
+
+        ... loading ...
+
+
+        </textarea>
+
+    <p/>
+
+    <span class='button'
+        onclick='tune = document.getElementById("tune"); tune.value=""'
+        >Clear: <tt>X</tt></span>
+    <span class='button'
+        onclick='MIDI.Player.stop(); onQwerChanged()'
+        >Play: <tt>&gt;</tt></span>
+    <span class='button'
+        onclick='MIDI.Player.stop();'
+        >Stop: <tt>[]</tt></span>
+    
+    </div>
+
     <span id='ceiling'></span>
+
     <div class="lobe player">
     <p>Press the keys below (on your screen or keyboard) to work out your tune,
     then share the results.</p>
@@ -98,38 +133,6 @@ broken.</p>
 
     </div>
 
-    <div class="lobe player">
-    <p>Your tune is right here for you to edit; each letter represents a
-    note.</p>
-
-    <textarea
-        id='tune'
-        onkeypress="return playAndOrValidateEvent(event);"
-        style='resize: vertical;'
-        cols='30' rows='5'
-        autofocus
-        disabled
-        onblur='this.focus(); putTuneInHash();'>
-
-
-        ... loading ...
-
-
-        </textarea>
-
-    <p/>
-
-    <span class='button'
-        onclick='tune = document.getElementById("tune"); tune.value=""'
-        >Clear: <tt>X</tt></span>
-    <span class='button'
-        onclick='MIDI.Player.stop(); onQwerChanged()'
-        >Play: <tt>&gt;</tt></span>
-    <span class='button'
-        onclick='MIDI.Player.stop();'
-        >Stop: <tt>[]</tt></span>
-    
-    </div>
 
     <div class="lobe player">
     <p>Share or bookmark this page once it plays your tune properly. These buttons might work after a refresh:
