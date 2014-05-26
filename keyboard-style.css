@@ -66,6 +66,7 @@ tt {
 }
 
 #tune {
+    resize: vertical;
     width: 90%;
 }
 
