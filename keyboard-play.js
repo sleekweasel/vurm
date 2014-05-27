@@ -38,15 +38,15 @@ function QwerToMidi() {
     this.convert = function (tune) {
         this.tune = tune;
         this.ix = 0;
+    //var debug = document.getElementById('debug');
+        var trax = [ [ /* meta = ch 0 */ ] ];
         var duration = this.duration();
         var beat = duration.len;
-        var next = 1;
         var oct = 0;
-        var trax = [ [ /* meta */ ] ];
+        var next = 1;
         var voice = [];
-        voice.oct = oct;
-        voice.next = next;
-        var pushvoice = 1;
+        trax.push(voice);
+        voice.chan = trax.length;
         while (this.ix < this.tune.length) {
             var ch = this.tune.charAt(this.ix++);
             var semitones = "qasedrfgyhujikSEDRFGYHUJIKLP:".indexOf(ch);
@@ -55,37 +55,31 @@ function QwerToMidi() {
                 var duration = this.duration();
                 var t = duration.len * next * beat * 64;
                 next = duration.next;
-                voice.push({deltaTime: 0, type: "channel", subtype: 'noteOn', channel: trax.length, noteNumber: midi, velocity:127});
-                voice.push({deltaTime: t, type: "channel", subtype: 'noteOff', channel: trax.length, noteNumber: midi, velocity:0});
+                voice.push({deltaTime: 0, type: "channel", subtype: 'noteOn', channel: voice.chan, noteNumber: midi, velocity:127});
+                voice.push({deltaTime: t, type: "channel", subtype: 'noteOff', channel: voice.chan, noteNumber: midi, velocity:0});
             }
             else {
                 var tpos = "-*+".indexOf(ch) - 1;
                 if (tpos == 0) {
-                    if (pushvoice) {
-                        voice.oct = oct;
-                        voice.next = next;
-                        trax.push(voice);
-                    }
+                    voice.oct = oct;
+                    voice.next = next;
                     var chan = this.eatInt();
                     if (isFinite(chan) && trax[chan]) {
                         voice = trax[chan];
                         oct = voice.oct;
                         next = voice.next;
-                        pushvoice = 0;
                     } else {
-                        voice = [];
                         oct = 0;
                         next = 1;
-                        pushvoice = 1;
+                        voice = [];
+                        trax.push(voice);
+                        voice.chan = trax.length;
                     }
                 }
                 if (tpos >= -1) {
                     oct += tpos;
                 }
             }
-        }
-        if (pushvoice) {
-            trax.push(voice);
         }
         return {
             header: {
