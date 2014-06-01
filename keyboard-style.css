@@ -70,6 +70,13 @@ tt {
     width: 90%;
 }
 
+.blobe {
+    width: 300px;
+    border: 1px solid;
+    padding: 1em;
+    border-radius: 3em 1em;
+}
+
 .lobe {
     width: 300px;
     border: 1px solid;

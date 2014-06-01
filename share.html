@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Share your melodies!</title>
+<link rel="stylesheet" href="keyboard-style.css"/>
+ </head>
+  <body>
+
+<center>
+<h2>Vurm</h2>
+    <div align="center" class="blobe player">
+
+To share your tune, just <a id="linkback">share this link!</a>
+<p>Or use one of these buttons:
+<script>var t=document.getElementById("linkback"); t.setAttribute("href",window.location.href.replace("share.html","keyboard.html"))</script>
+
+<div align="center">
+<a id="tweet" href="https://twitter.com/share" class="twitter-share-button" data-url="http://xxx.yyy" data-text="I have a tune to share!" data-hashtags="ohrvurm">Tweet</a>
+<script>var t=document.getElementById("tweet"); t.setAttribute("data-url",window.location.href.replace("share.html","keyboard.html"))</script>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+
+</div>
+<div align="center">
+    <button onclick='window.open("https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(location.href.replace("share.html","keyboard.html")), "fbshare","height=200,width=500")'>Share on Facebook</button>
+
+</div>
+<div align="center">
+<!-- Place this tag where you want the share button to render. -->
+<div id="gplus" class="g-plus" data-action="share" data-height="24" data-href="http://www.yyy"></div>
+<script>var t=document.getElementById("gplus"); t.setAttribute("data-href",window.location.href.replace("share.html","keyboard.html"))</script>
+
+<!-- Place this tag after the last share tag. -->
+<script type="text/javascript">
+  (function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+    po.src = 'https://apis.google.com/js/platform.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+</script>
+
+</div></div>
+</center>
